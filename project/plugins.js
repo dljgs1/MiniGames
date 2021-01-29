@@ -1311,6 +1311,282 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		return false;
 	}
 },
-	
+	"combineKing": function(){
 
+		// ------- 类型包装 ------------
+		function Actor(Block)
+		{
+			this.x = Block.x;
+			this.y = Block.y;
+		}
+
+
+		// ------- 路径计算相关 ---------
+
+		// 枚举
+		var EAction = {
+			FLOW: 0, // 自由滑动
+			REBOUND: 1, //反弹
+			TRANS: 2, //传递
+			COMBINE: 3, //融合
+		}
+
+
+		// 行为节点
+		function ActionNode(ActionType)
+		{
+			this.type = ActionType
+		}
+		ActionNode.prototype.Play = function(Actor)
+		{
+			switch(this.type)
+			{
+				case EAction.FLOW:
+					break;
+				case EAction.REBOUND:
+					break;
+				case EAction.TRANS:
+					break;
+				case EAction.COMBINE:
+					break;
+			}
+		}
+
+		// 行为流
+		function Route()
+		{
+			this.RouteArray = []
+			this.cur = -1
+		}
+		Route.prototype.Process = function(sx, sy, direction, force)
+		{
+			var targetBlock = core.getBlock(sx, sy);
+			if(!targetBlock)return;
+			var dx = core.utils.scan[direction].x,
+				dy = core.utils.scan[direction].y;
+			while(force > 0)
+			{
+				x += dx; y += dy;
+				force-- ;
+				var blk = core.getBlock(x, y);
+				var node = null;
+				if(!blk)
+				{
+					node = new ActionNode(EAction.FLOW);
+				}
+				else
+				{
+					switch(blk.block.cls)
+					{
+						case "enemys":break;
+						case "items":break;
+						case "terrains":
+							node = new ActionNode(EAction.REBOUND);
+							break;
+						case "npcs":break;
+					}
+					
+				}
+
+			}
+		}
+		Route.prototype.Play = function(targetBlock, NoAnim)
+		{
+			
+		}
+		Route.prototype.ReversePlay = function(targetBlock, NoAnim)
+		{
+			
+		}
+
+		this.CalBonusRoute = function(sx, sy, direction)
+		{
+			var target = core.getBlock(sx, sy);
+			if(!target)return;
+			var dx = core.utils.scan[direction].x,
+				dy = core.utils.scan[direction].y;
+			var force = 10, x = sx, y = sy;
+			var result = [];
+			while(force > 0)
+			{
+				x += dx; y += dy;
+				force-- ;
+				var blk = core.getBlock(x, y);
+				if(!blk)continue;
+			}
+
+		}
+		// ----------- 合成
+		
+		// ----------- 随机性
+
+		// ----------- 
+
+	},
+
+	"TWEEN": function()
+	{
+		Window.TWEEN = {};
+		// ----------- Ease Function -----------
+		Window.TWEEN.EaseFunctions = {};
+		Window.TWEEN.EaseFunctions.Linear = function (time, duration)
+		{
+			return time / duration;
+		}
+		Window.TWEEN.EaseFunctions.InSine = function (time, duration)
+		{
+			return 1 - Math.cos(time / duration * Math.PI / 2);
+		}
+
+
+		var TweenArray = [];
+		core.registerAnimationFrame("Tween", true, function(DeltaTime){
+			for(var i = 0; i < TweenArray.length; i++)
+			{
+				if(TweenArray[i])
+				{
+					TweenArray[i] = TweenArray[i].Update(DeltaTime);
+				}
+			}
+		});
+		function TweenHandle(target, duration)
+		{
+			this.target = target;
+			this.duration = duration;
+			this.tweenValue = 0;
+			this.isStart = false
+			this.isEnd = false
+			this.easeHandle = Window.TWEEN.EaseFunctions.Linear;
+			if (typeof(target) == "number")
+			{
+				this.type = 0;
+			}
+			else
+			{
+				this.type = 1;
+			}
+		}
+		TweenHandle.prototype.Apply = function(EaseValue)
+		{
+			if (this.type == 1) // 向量
+			{
+				var obj = this.target;
+				if(this.attr)
+				{
+					obj[this.attr] = EaseValue * (this.endValue - this.startValue);
+				}
+				else if(obj.x != undefined && obj.y != undefined)
+				{
+					obj.x = EaseValue * (this.endValue.x - this.startValue.x);
+					obj.y = EaseValue * (this.endValue.y - this.startValue.y);
+				}
+				else if(obj.Apply)
+				{
+					obj.Apply(EaseValue, this.startValue, this.endValue);
+				}
+
+			}
+			else // 标量
+			{
+				this.target = EaseValue * (this.endValue - this.startValue);
+			}
+		}
+		TweenHandle.prototype.Update = function(DeltaTime)
+		{
+			if(this.isEnd)
+			{
+				return null;
+			}
+			if(!this.isStart)
+			{
+				this.isStart = true;
+				if (this.onStartCallback)
+				{
+					this.onStartCallback();
+				}
+				this.Apply(0);
+				return this;
+			}
+			this.tweenValue += DeltaTime;
+			if(this.tweenValue > this.duration)
+			{
+				this.tweenValue = this.duration
+				this.isEnd = true;
+				if(this.onCompleteCallback)
+				{
+					this.onCompleteCallback();
+				}
+			}
+			
+			this.Apply(this.easeHandle(this.tweenValue, this.duration));
+
+			if(this.onUpdateCallback)
+			{
+				this.onUpdateCallback(this.target)
+			}
+			return this;
+		}
+		TweenHandle.prototype.OnAttr = function(AttrName)
+		{
+			this.attr = AttrName
+			return this;
+		}
+		TweenHandle.prototype.From = function(Value)
+		{
+			this.startValue = Value
+			return this;
+		}
+		TweenHandle.prototype.To = function(Value)
+		{
+			this.endValue = Value
+			return this;
+		}
+		TweenHandle.prototype.OnUpdate = function(func)
+		{
+			this.onUpdateCallback = func;
+			return this;
+		}
+		TweenHandle.prototype.OnStart = function(func)
+		{
+			this.onStartCallback = func;
+			return this;
+		}
+		TweenHandle.prototype.OnComplete = function(func)
+		{
+			this.onCompleteCallback = func;
+			return this;
+		}
+		TweenHandle.prototype.Concat = function(Handle)
+		{
+			if (Handle.target === this.target) //  && Handle.startValue === this.endValue
+			{
+				this.endValue = Handle.endValue;
+			} 
+			return this;
+		}
+		TweenHandle.prototype.Begin = function()
+		{
+			for(var i = 0; i < TweenArray.length; i++)
+			{
+				if(TweenArray[i] == null)
+				{
+					TweenArray[i] = this;
+					return this;
+				}
+			}
+			TweenArray.push(this);
+			return this;
+		}
+		this.CreateTween = function(target, duration, attrName)
+		{
+			var obj = new TweenHandle(target, duration);
+			obj.attr = attrName;
+			return obj;
+		}
+	},
+
+	"Wrapper": function()
+	{
+
+	}
 }
