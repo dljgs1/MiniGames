@@ -1311,9 +1311,7 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		return false;
 	}
 },
-	"combineKing": function(){
-
-		// ------- 类型包装 ------------
+	"combineKing": function(){		// ------- 类型包装 ------------
 		function Actor(Block)
 		{
 			this.x = Block.x;
