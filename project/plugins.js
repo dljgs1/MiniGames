@@ -1311,13 +1311,57 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		return false;
 	}
 },
-	"combineKing": function(){		// ------- 类型包装 ------------
+	"combineKing": function(){
+		// ------- 类型包装 ------------
+		function Vector(x, y, direction)
+		{
+			this.x = x; 
+			this.y = y;
+			this.setDirection(direction);
+		}
 		function Actor(Block)
 		{
-			this.x = Block.x;
-			this.y = Block.y;
+			this.loc = new Vector(Block.x, Block.y);
+			this.block = Block;
+			this.blockInfo = core.getBlockInfo(Block);
 		}
 
+		Vector.prototype.step = function(delta)
+		{
+			if(!this.direction)return;
+			delta = delta || 1;
+			this.x = this.x + this.dx * delta;
+			this.y = this.y + this.dy * delta;
+		}
+		Vector.prototype.setDirection = function(direction)
+		{
+			if(!direction)return;
+			this.direction = direction;
+			var dir = core.utils.scan[direction];
+			if(dir)
+			{
+				this.dx = dir.x;
+				this.dy = dir.y;
+			}
+			else if(typeof(direction) == "object")
+			{
+				this.dx = direction.x;
+				this.dy = direction.y;
+			}
+		}
+		Vector.prototype.reverse = function()
+		{
+			if(!this.direction)return;
+			var reverseMap = {
+				'up': 'down',
+				'left': 'right',
+				'down': 'up',
+				'right': 'left'
+			};
+			this.direction = reverseMap[this.direction] || this.direction;
+			this.dx = - this.dx;
+			this.dy = - this.dy;
+		}
 
 		// ------- 路径计算相关 ---------
 
@@ -1335,17 +1379,39 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		{
 			this.type = ActionType
 		}
-		ActionNode.prototype.Play = function(Actor)
+		ActionNode.prototype.apply = function(actor)
 		{
 			switch(this.type)
 			{
 				case EAction.FLOW:
+					Actor.MoveForward();
 					break;
 				case EAction.REBOUND:
 					break;
 				case EAction.TRANS:
 					break;
 				case EAction.COMBINE:
+					break;
+			}
+			this.updateTransform(actor.loc);
+		}
+		ActionNode.prototype.updateTransform = function(vector)
+		{
+			switch(this.type)
+			{
+				case EAction.FLOW:
+					vector.step();
+					break;
+				case EAction.REBOUND:
+					// todo : 检查周边 实现侧弹
+					vector.reverse();
+					vector.step();
+					break;
+				case EAction.TRANS:
+					vector.step();
+					break;
+				case EAction.COMBINE:
+					vector.step();
 					break;
 			}
 		}
@@ -1356,17 +1422,15 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			this.RouteArray = []
 			this.cur = -1
 		}
-		Route.prototype.Process = function(sx, sy, direction, force)
+		// 对某个对象生成施加力后产生的行为
+		Route.prototype.generateForce = function(actor, direction, force)
 		{
-			var targetBlock = core.getBlock(sx, sy);
-			if(!targetBlock)return;
-			var dx = core.utils.scan[direction].x,
-				dy = core.utils.scan[direction].y;
+			var proxyVec = new Vector(actor.loc.x, actor.loc.y, direction);
 			while(force > 0)
 			{
-				x += dx; y += dy;
+				proxyVec.step()
 				force-- ;
-				var blk = core.getBlock(x, y);
+				var blk = core.getBlock(proxyVec.x, proxyVec.y);
 				var node = null;
 				if(!blk)
 				{
@@ -1376,14 +1440,20 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 				{
 					switch(blk.block.cls)
 					{
-						case "enemys":break;
-						case "items":break;
+						case "items":
 						case "terrains":
 							node = new ActionNode(EAction.REBOUND);
 							break;
 						case "npcs":break;
+						case "enemys":
+
+							break;
 					}
 					
+				}
+				if(node)
+				{
+					this.RouteArray.push(node);
 				}
 
 			}
@@ -1415,6 +1485,13 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 
 		}
 		// ----------- 合成
+
+		// a的等级比b大
+		this.isCombineLevelHigher = function(id1, id2)
+		{
+
+		}
+
 		
 		// ----------- 随机性
 
