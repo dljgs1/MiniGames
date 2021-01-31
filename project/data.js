@@ -2,11 +2,8 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 {
 	"main": {
 		"floorIds": [
-			"sample0",
-			"sample1",
-			"sample2",
-			"sample3",
-			"MT0"
+			"MT0",
+			"ET"
 		],
 		"floorPartitions": [],
 		"images": [
@@ -42,31 +39,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 			"背景图.jpg": "bg.jpg",
 			"背景音乐.mp3": "bgm.mp3"
 		},
-		"levelChoose": [
-			{
-				"title": "简单",
-				"name": "Easy",
-				"hard": 1,
-				"action": [
-					{
-						"type": "comment",
-						"text": "在这里写该难度需执行的事件"
-					}
-				]
-			},
-			{
-				"title": "普通",
-				"name": "Normal",
-				"hard": 2,
-				"color": [
-					0,
-					255,
-					0,
-					1
-				],
-				"action": []
-			}
-		],
+		"levelChoose": [],
 		"equipName": [
 			"武器",
 			"盾牌"
@@ -80,16 +53,17 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 			"statusLeftBackground": "url(project/materials/ground.png) repeat",
 			"statusTopBackground": "url(project/materials/ground.png) repeat",
 			"toolsBackground": "url(project/materials/ground.png) repeat",
-			"borderColor": [
-				204,
-				204,
-				204,
-				1
-			],
+			"floorChangingStyle": "background-color: black; color: white",
 			"statusBarColor": [
 				255,
 				255,
 				255,
+				1
+			],
+			"borderColor": [
+				204,
+				204,
+				204,
 				1
 			],
 			"selectColor": [
@@ -98,32 +72,33 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 				0,
 				1
 			],
-			"floorChangingStyle": "background-color: black; color: white",
 			"font": "Verdana"
 		}
 	},
 	"firstData": {
-		"title": "魔塔样板",
-		"name": "template",
+		"title": "合成大魔王",
+		"name": "combineKing",
 		"version": "Ver 2.7.3.1",
-		"floorId": "sample0",
+		"floorId": "MT0",
 		"hero": {
 			"image": "hero.png",
 			"animate": false,
 			"name": "阳光",
 			"lv": 1,
 			"hpmax": 9999,
-			"hp": 1000,
+			"hp": 10000,
 			"manamax": -1,
 			"mana": 0,
-			"atk": 100,
-			"def": 100,
+			"atk": 10,
+			"def": 10,
 			"mdef": 0,
 			"money": 0,
 			"exp": 0,
 			"equipment": [],
 			"items": {
-				"constants": {},
+				"constants": {
+					"book": 1
+				},
 				"tools": {},
 				"equips": {}
 			},
@@ -268,9 +243,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 			{
 				"type": "comment",
 				"text": "初始剧情"
-			},
-			"Hi，欢迎来到 HTML5 魔塔样板！\n\n本样板由艾之葵制作，可以让你在不会写任何代码\n的情况下也能做出属于自己的H5魔塔！",
-			"这里游戏开始时的剧情。\n\n你可以在这里写上自己的内容。\n赶快来试一试吧！"
+			}
 		],
 		"shops": [
 			{

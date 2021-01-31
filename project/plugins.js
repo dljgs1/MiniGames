@@ -1319,19 +1319,185 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			this.y = y;
 			this.setDirection(direction);
 		}
-		function Actor(Block)
+		EActorState = 
 		{
-			this.loc = new Vector(Block.x, Block.y);
-			this.block = Block;
-			this.blockInfo = core.getBlockInfo(Block);
+			STOP : 0,
+			ACTIVE : 1,
+			BUSY : 2,
+		}
+		function Actor(x, y, direction)
+		{
+			this.loc = new Vector(x, y, direction);
+			this.initBlock();
+			this.validAction = 0;
+		}
+		var directionList = ["left","up","right","down"];
+
+		Actor.prototype.initBlock = function()
+		{
+			this.block = core.getBlock(this.loc.x, this.loc.y);
+			this.blockInfo = core.getBlockInfo(this.block);
+		}
+		// 获取前面的块的类型
+		Actor.prototype.getFaceBlockCls = function()
+		{
+			var blk = this.loc.getNearBlock();
+			if (!blk)
+			{
+				return "air";
+			}
+			return blk.event.cls;
+		}
+		
+		Actor.prototype.getItemId = function()
+		{
+			return core.getEnemyInfo(this.block.event.id).point;
+		}
+		// 获取ID
+		Actor.prototype.getEnemyId = function()
+		{
+			return this.block.id;
+		}
+		Actor.prototype.getFaceEnemyId = function()
+		{
+			var blk = this.loc.getNearBlock();
+			if (!blk)
+			{
+				return 0;
+			}
+			return blk.id;
+		}
+		// actions
+		Actor.prototype.flow = function(success)
+		{
+			var self = this;
+			core.moveBlock(this.loc.x, this.loc.y, [this.loc.direction], 100, true, 
+				function()
+				{
+					success.call(self);
+				});
+			this.loc.step();
+			this.force --;
+		}
+		Actor.prototype.rebound = function(success)
+		{
+			var left = this.loc.getNearBlock(-1);
+			var right = this.loc.getNearBlock(1);
+			var back = this.loc.getNearBlock(2);
+			if(left && right || left == null && right == null)
+			{
+				this.loc.reverse();
+				if(back)
+				{
+					return this.trans(success);
+				}
+			}
+			else
+			{
+				if(left)
+				{
+					this.loc.setDirection(this.loc.getWorldDirection(1));
+				}
+				if(right)
+				{
+					this.loc.setDirection(this.loc.getWorldDirection(-1));
+				}	
+			}
+			this.flow(success);
+		}
+		Actor.prototype.stop = function(success)
+		{
+			this.force = 0;
+			success.call(this);
+		}
+		Actor.prototype.trans = function(success)
+		{
+			this.loc.step();
+			this.initBlock();
+			if(this.block.event.cls != "enemys")
+			{
+				this.stop(success);
+			}
+			else
+			{
+				success.call(this);
+			}
 		}
 
+		// 尝试连续合并
+		Actor.prototype.tryCombine = function(success)
+		{
+			var dirs = [0, -1, 2, 1];
+			for(var i in dirs)
+			{
+				var blk = this.loc.getNearBlock(dirs[i]);
+				if(blk && blk.id == this.block.id)
+				{
+					this.loc.setDirection(this.loc.getWorldDirection(dirs[i]));
+					this.combine(success);
+					return true;
+				}
+			}
+			return false;
+		}
+		Actor.prototype.combine = function(success)
+		{
+			var self = this;
+			var id = core.getCombineId(this.getEnemyId());
+			var itemId = this.getItemId();
+			var lastLoc = {x: this.loc.x, y: this.loc.y};
+			this.flow(function()
+			{
+				if(itemId != 0)core.setBlock(itemId, lastLoc.x, lastLoc.y);
+				core.setBlock(id, self.loc.x, self.loc.y);
+				self.initBlock();
+				success.call(self);
+			})
+		}
+		
+		
+		// 前进一步
 		Vector.prototype.step = function(delta)
 		{
 			if(!this.direction)return;
 			delta = delta || 1;
 			this.x = this.x + this.dx * delta;
 			this.y = this.y + this.dy * delta;
+		}
+		//
+		var EdgeBlock = {id:0, event:{cls:"terrains"}};
+		Vector.prototype.getBlock = function(x, y)
+		{
+			if (x == null)x = this.x;
+			if (y == null)y = this.y;
+			if (x >= core.__SIZE__ || x < 0 || y >= core.__SIZE__ || y < 0)return EdgeBlock; 
+			// if (x == core.getHeroLoc('x') && y == core.getHeroLoc('y'))return EdgeBlock;
+			return core.getBlock(x, y)
+		}
+		Vector.prototype.getWorldDirection = function(dir)
+		{
+			if(dir)
+			{
+				return directionList[(directionList.indexOf(this.direction) + dir + 4) % 4]
+			}
+			return this.direction;
+		}
+		// 获取临近块 0 代表不变方向 1 代表顺时针 -1 代表逆时针 2 -2 代表背后 
+		Vector.prototype.getNearBlock = function(dir)
+		{
+			dir = dir || 0;
+			if (dir == 0)
+			{
+				return this.getBlock(this.x + this.dx, this.y + this.dy);
+			}
+			else
+			{
+				dir = core.utils.scan[this.getWorldDirection(dir)];
+				if(dir)
+				{
+					return this.getBlock(this.x + dir.x, this.y + dir.y);
+				}
+			}
 		}
 		Vector.prototype.setDirection = function(direction)
 		{
@@ -1371,129 +1537,231 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			REBOUND: 1, //反弹
 			TRANS: 2, //传递
 			COMBINE: 3, //融合
+			STOP: 4,// 刹车
+			TRY: 5, //尝试融合
 		}
-
-
 		// 行为节点
-		function ActionNode(ActionType)
+		function ActionNode(actionType)
 		{
-			this.type = ActionType
-		}
-		ActionNode.prototype.apply = function(actor)
-		{
-			switch(this.type)
-			{
-				case EAction.FLOW:
-					Actor.MoveForward();
-					break;
-				case EAction.REBOUND:
-					break;
-				case EAction.TRANS:
-					break;
-				case EAction.COMBINE:
-					break;
-			}
-			this.updateTransform(actor.loc);
-		}
-		ActionNode.prototype.updateTransform = function(vector)
-		{
-			switch(this.type)
-			{
-				case EAction.FLOW:
-					vector.step();
-					break;
-				case EAction.REBOUND:
-					// todo : 检查周边 实现侧弹
-					vector.reverse();
-					vector.step();
-					break;
-				case EAction.TRANS:
-					vector.step();
-					break;
-				case EAction.COMBINE:
-					vector.step();
-					break;
-			}
+			this.type = actionType;
 		}
 
-		// 行为流
-		function Route()
+
+		Actor.prototype.doAction = function(action)
 		{
-			this.RouteArray = []
-			this.cur = -1
-		}
-		// 对某个对象生成施加力后产生的行为
-		Route.prototype.generateForce = function(actor, direction, force)
-		{
-			var proxyVec = new Vector(actor.loc.x, actor.loc.y, direction);
-			while(force > 0)
+			if(!action)return this;
+			switch(action.type)
 			{
-				proxyVec.step()
-				force-- ;
-				var blk = core.getBlock(proxyVec.x, proxyVec.y);
-				var node = null;
-				if(!blk)
-				{
-					node = new ActionNode(EAction.FLOW);
-				}
-				else
-				{
-					switch(blk.block.cls)
+				case EAction.FLOW:
+					this.flow(this.play);
+					this.validAction += 1;
+					break;
+				case EAction.REBOUND:
+					this.rebound(this.play);
+					this.validAction += 1;
+					break;
+				case EAction.COMBINE:
+					this.combine(this.play);
+					this.validAction += 1;
+					break;
+				case EAction.TRANS:
+					this.trans(this.play);
+					break;
+				case EAction.STOP:
+					this.stop(this.play);
+					break;
+				case EAction.TRY:
+					if(!this.tryCombine(this.play))
 					{
-						case "items":
-						case "terrains":
-							node = new ActionNode(EAction.REBOUND);
-							break;
-						case "npcs":break;
-						case "enemys":
-
-							break;
+						this.stop(this.play);
 					}
-					
-				}
-				if(node)
-				{
-					this.RouteArray.push(node);
-				}
-
+					else
+					{
+						this.validAction += 1;
+					}
+					break;
 			}
 		}
-		Route.prototype.Play = function(targetBlock, NoAnim)
+
+		Actor.prototype.play = function()
 		{
-			
-		}
-		Route.prototype.ReversePlay = function(targetBlock, NoAnim)
-		{
-			
+			if(this.tryCombine(this.play)) // 体验优化：只要临近就自动吸附
+			{
+				return;
+			}
+			if(this.force <= 0)return this.finish();
+			var node = null;
+			switch(this.getFaceBlockCls())
+			{
+				case "items":
+					node = new ActionNode(EAction.STOP);
+					break;
+				case "terrains":
+				case "animates":
+				case "npcs":
+					node = new ActionNode(EAction.REBOUND);
+					break;
+				case "enemys":
+					{
+						var id1 = this.getEnemyId();
+						var id2 = this.getFaceEnemyId();
+						if(id1 == id2)
+						{
+							node = new ActionNode(EAction.COMBINE);
+						}
+						else if(core.isCombineLevelHigher(id1, id2))
+						{
+							node = new ActionNode(EAction.TRANS);
+						}
+						else
+						{
+							node = new ActionNode(EAction.REBOUND);
+						}
+						
+					}
+					break;
+				case "air":
+					node = new ActionNode(EAction.FLOW);
+					break;
+			}
+			this.doAction(node);
 		}
 
-		this.CalBonusRoute = function(sx, sy, direction)
+		Actor.prototype.finish = function()
+		{
+			if(this.callback)
+			{
+				this.callback(this);
+			}
+		}
+
+		// 对某个块施加力
+		this.AddForceToBlock = function(sx, sy, direction)
 		{
 			var target = core.getBlock(sx, sy);
 			if(!target)return;
-			var dx = core.utils.scan[direction].x,
-				dy = core.utils.scan[direction].y;
-			var force = 10, x = sx, y = sy;
-			var result = [];
-			while(force > 0)
+			var actor = new Actor(sx, sy, direction);
+			actor.force = core.getFlag("force", 5);
+			actor.callback = function()
 			{
-				x += dx; y += dy;
-				force-- ;
-				var blk = core.getBlock(x, y);
-				if(!blk)continue;
+				if(actor.validAction > 0)
+				{
+					core.addGameTurn();
+					core.generateNewMonster();
+				}
+				core.doAction();
 			}
-
+			actor.play();
 		}
-		// ----------- 合成
-
+		// ----------- 合成游戏性相关
+		var combineList = [];
+		var combineInfo = {}
+		for(var i = 0; i < 10; i ++)
+		{
+			var arr = core.floors.ET.map[i];
+			if(arr[0] == 0)break;
+			for(var j = 0; j < arr.length; j++)
+			{
+				if(arr[j] == 0)break;
+				combineList.push(arr[j]);
+			}
+		}
+		for(var i = 0; i < combineList.length; i++)
+		{
+			var id = combineList[i];
+			combineInfo[id] = 
+			{
+				id : id,
+				level : i,
+				next : combineList[i + 1]
+			};
+		}
 		// a的等级比b大
 		this.isCombineLevelHigher = function(id1, id2)
 		{
-
+			return combineInfo[id1].level > combineInfo[id2].level;
 		}
+
+		this.getCombineId = function(id)
+		{
+			return combineInfo[id].next;
+		}
+
+		this.startCombineGame = function()
+		{
+			core.setFlag("turn", 0);
+		}
+		
+		this.addGameTurn = function()
+		{
+			core.addFlag("turn", 1);
+		}
+		
 
 		
 		// ----------- 随机性
+		function generateEmptyLocs()
+		{
+			var blocks = core.getMapBlocksObj();
+			var heroloc = core.getHeroLoc('x') + ',' + core.getHeroLoc('y');
+			var arr = [];
+			for(var i = 0; i < core.__SIZE__; i++)
+			{
+				for(var j = 0; j < core.__SIZE__; j++)
+				{
+					var idx = i + ',' + j;
+					if(idx != heroloc && !blocks[idx])
+					{
+						var dist = (i - core.__HALF_SIZE__)**2 + (j - core.__HALF_SIZE__)**2
+						arr.push({x:i, y:j, pow: dist});
+					}
+				}	
+			}
+			return arr.sort(function(a, b)
+			{
+				return a.pow - b.pow;
+			});
+		}
+
+
+
+		this.generateNewMonster = function(turn)
+		{
+			turn = turn || core.getFlag('turn');
+			var rpos = core.rand();
+			var emptyList = generateEmptyLocs();
+			var pos = emptyList[Math.max(Math.floor(rpos * emptyList.length / 2), 36)];
+			var rmon = core.rand() ** 1.8;
+			var id = 0;
+			if(emptyList.length < 110 && turn % 5 != 0
+				||
+				emptyList.length < 90 && turn % 11 != 0)
+			{
+				return;
+			}
+			if(turn < 10)
+			{
+				id = combineList[Math.floor(rmon * 3)];
+			}
+			else if(turn < 25)
+			{
+				id = combineList[Math.floor(rmon * 4)];
+			}
+			else if(turn < 50)
+			{
+				id = combineList[Math.floor(rmon * 5)];
+			}
+			else
+			{
+				id = combineList[Math.floor(rmon * 6)];
+			}
+			if(pos)
+			{
+				core.setBlock(id, pos.x, pos.y);
+			}
+		}
+
+
 
 		// ----------- 
 
@@ -1659,9 +1927,4 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			return obj;
 		}
 	},
-
-	"Wrapper": function()
-	{
-
-	}
 }
