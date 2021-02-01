@@ -1330,6 +1330,8 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			this.loc = new Vector(x, y, direction);
 			this.initBlock();
 			this.validAction = 0;
+			this.onCombineEvent = new GameEvent(); // 合成事件
+			this.onCompleteEvent = new GameEvent(); // 结束事件
 		}
 		var directionList = ["left","up","right","down"];
 
@@ -1371,11 +1373,23 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		Actor.prototype.flow = function(success)
 		{
 			var self = this;
-			core.moveBlock(this.loc.x, this.loc.y, [this.loc.direction], 100, true, 
-				function()
+			if(core.isReplaying())
+			{
+				core.removeBlock(this.loc.x, this.loc.y);
+				setTimeout(function()
 				{
+					core.setBlock(self.block.id, self.loc.x, self.loc.y);
 					success.call(self);
-				});
+				})
+			}
+			else
+			{
+				core.moveBlock(this.loc.x, this.loc.y, [this.loc.direction], 100, true, 
+					function()
+					{
+						success.call(self);
+					});
+			}
 			this.loc.step();
 			this.force --;
 		}
@@ -1444,13 +1458,14 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		{
 			var self = this;
 			var id = core.getCombineId(this.getEnemyId());
-			var itemId = this.getItemId();
+			// var itemId = this.getItemId();
 			var lastLoc = {x: this.loc.x, y: this.loc.y};
 			this.flow(function()
 			{
-				if(itemId != 0)core.setBlock(itemId, lastLoc.x, lastLoc.y);
+				// if(itemId != 0)core.setBlock(itemId, lastLoc.x, lastLoc.y);
 				core.setBlock(id, self.loc.x, self.loc.y);
 				self.initBlock();
+				self.onCombineEvent.Bingo(self);
 				success.call(self);
 			})
 		}
@@ -1589,7 +1604,7 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			{
 				return;
 			}
-			if(this.force <= 0)return this.finish();
+			if(this.force <= 0)return this.onCompleteEvent.Bingo();
 			var node = null;
 			switch(this.getFaceBlockCls())
 			{
@@ -1627,14 +1642,6 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			this.doAction(node);
 		}
 
-		Actor.prototype.finish = function()
-		{
-			if(this.callback)
-			{
-				this.callback(this);
-			}
-		}
-
 		// 对某个块施加力
 		this.AddForceToBlock = function(sx, sy, direction)
 		{
@@ -1642,15 +1649,48 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			if(!target)return;
 			var actor = new Actor(sx, sy, direction);
 			actor.force = core.getFlag("force", 5);
-			actor.callback = function()
-			{
-				if(actor.validAction > 0)
+			var Handle =  new CountHandler(1);
+			Handle.finishEvent.Add(
+				Handle, function()
 				{
-					core.addGameTurn();
-					core.generateNewMonster();
+					if(actor.validAction > 0)
+					{
+						core.addGameTurn();
+						core.generateNewMonster();
+					}
+					core.doAction();
 				}
-				core.doAction();
-			}
+			)
+			actor.onCompleteEvent.Add(Handle, Handle.Reduce);
+			actor.onCombineEvent.Add(
+				actor,
+				// 奖励相关: 大中小奖励（黄宝石、红蓝绿宝石、血瓶）
+				function()
+				{
+					var info = core.getEnemyInfo(this.block.event.id);
+					core.status.hero.money += info.money;
+					core.status.hero.statistics.money += info.money;
+					var giftList = [];
+					["small","mid","big"].forEach(function(item){
+						var flagName = item + "Count";
+						var configThr = item + "Thr";
+						var configList = item + "List";
+						if(core.status.hero.money - (core.getFlag(flagName, 0) + 1) * core.values.combineGift[configThr] >= 0)
+						{
+							var idx = core.getFlag(flagName, 0) % core.values.combineGift[configList].length;
+							giftList.push(core.values.combineGift[configList][idx]);
+							core.addFlag(flagName, 1);
+						}
+					});
+					if(giftList.length>0)
+					{
+						Handle.AddCount();
+						core.generateNewItems(giftList, this, function(){
+							Handle.Reduce()
+						});
+					}
+				}
+			)
 			actor.play();
 		}
 		// ----------- 合成游戏性相关
@@ -1700,8 +1740,9 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 
 		
 		// ----------- 随机性
-		function generateEmptyLocs()
+		this.generateEmptyLocs = function(powerCenter)
 		{
+			powerCenter = powerCenter || {x : core.__HALF_SIZE__, y : core.__HALF_SIZE__};
 			var blocks = core.getMapBlocksObj();
 			var heroloc = core.getHeroLoc('x') + ',' + core.getHeroLoc('y');
 			var arr = [];
@@ -1712,7 +1753,7 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 					var idx = i + ',' + j;
 					if(idx != heroloc && !blocks[idx])
 					{
-						var dist = (i - core.__HALF_SIZE__)**2 + (j - core.__HALF_SIZE__)**2
+						var dist = (i - powerCenter.x)**2 + (j - powerCenter.y)**2
 						arr.push({x:i, y:j, pow: dist});
 					}
 				}	
@@ -1729,7 +1770,7 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		{
 			turn = turn || core.getFlag('turn');
 			var rpos = core.rand();
-			var emptyList = generateEmptyLocs();
+			var emptyList = core.generateEmptyLocs();
 			var pos = emptyList[Math.max(Math.floor(rpos * emptyList.length / 2), 36)];
 			var rmon = core.rand() ** 1.8;
 			var id = 0;
@@ -1761,8 +1802,51 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			}
 		}
 
+		this.generateNewItems = function(itemList, actor, callback)
+		{
+			var emptyLocs = core.generateEmptyLocs(actor.loc);
+			var Handle = new CountHandler(itemList.length);
+			Handle.finishEvent.Add(this, callback);
+			for(var i in itemList)
+			{
+				var itemId = itemList[i];
+				var idx = Math.floor((core.rand()**1.5) * emptyLocs.length);
+				var loc = emptyLocs[idx];
+				emptyLocs.splice(idx, 1);
+				// Handle.Reduce();
+				core.jumpVirtualBlock(itemId, actor.loc.x, actor.loc.y, loc.x, loc.y, 250, true, 
+					function(){
+						Handle.Reduce();
+					});
+				// core.setBlock(itemId, loc.x, loc.y);
+			}
+		}
 
+		// ---- rewrite
 
+		////// 尝试瞬间移动 ////// 优先选择离角色更近的点
+		control.prototype.tryMoveDirectly = function (destX, destY) {
+			if (this.nearHero(destX, destY)) return false;
+			var canMoveArray = core.maps.generateMovableArray();
+			var dirs = [[destX-1,destY,"right"],[destX,destY-1,"down"],[destX,destY+1,"up"],[destX+1,destY,"left"]];
+			var hx = core.getHeroLoc('x'), hy = core.getHeroLoc('y');
+			function dist2Hero(dir){return (dir[0]-hx)**2 + (dir[1]-hy) ** 2}
+			dirs.forEach(function(it){it.push(dist2Hero(it))})
+			dirs.sort(function(a, b){return a[3] - b[3]});
+			dirs = [[destX,destY]].concat(dirs);
+			var canMoveDirectlyArray = core.canMoveDirectlyArray(dirs, canMoveArray);
+			for (var i = 0; i < dirs.length; ++i) {
+				var d = dirs[i], dx = d[0], dy = d[1], dir = d[2];
+				if (dx<0 || dx>=core.bigmap.width|| dy<0 || dy>=core.bigmap.height) continue;
+				if (dir && !core.inArray(canMoveArray[dx][dy],dir)) continue;
+				if (canMoveDirectlyArray[i]<0) continue;
+				if (core.control.moveDirectly(dx, dy, canMoveDirectlyArray[i])) {
+					if (dir) core.moveHero(dir, function() {});
+					return true;
+				}
+			}
+			return false;
+		}
 		// ----------- 
 
 	},
@@ -1927,4 +2011,99 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			return obj;
 		}
 	},
+
+	"EVENT": function()
+	{
+		function GameEvent()
+		{
+			this.listeners = [];
+		}
+		GameEvent.prototype.Add = function(Host, Func, Data)
+		{
+			this.Remove(Host, Func);
+			var newListener = {
+				Host : Host,
+				Func : Func,
+				Data : Data
+			}
+			for(var i in this.listeners)
+			{
+				if(!this.listeners[i])
+				{
+					return this.listeners[i] = newListener;
+				}
+			}
+			this.listeners.push(newListener);
+		}		
+		GameEvent.prototype.Remove = function(Host, Func)
+		{
+
+			for(var i in this.listeners)
+			{
+				if(this.listeners[i].Host === Host && this.listeners[i].Func === Func)
+				{
+					delete this.listeners[i];
+					break;
+				}
+			}
+		}
+		GameEvent.prototype.Bingo = function(Data)
+		{
+			var arg1 = [];
+			if(Data)arg1.push(Data)
+			for(var i in this.listeners)
+			{
+				if(this.listeners[i])
+				{
+					var arg2 = [this.listeners[i].Data];
+					this.listeners[i].Func.apply(this.listeners[i].Host, arg1.concat(arg2));
+				}
+			}
+		}
+
+		// 倒计数器 
+		function CountHandler(num)
+		{
+			this.count = num || 0;
+			this.finishEvent = new GameEvent();
+		}
+		CountHandler.prototype.Reduce = function()
+		{
+			this.count --;
+			if(this.count <= 0)
+			{
+				this.finishEvent.Bingo();
+			}
+		}
+		CountHandler.prototype.AddCount = function()
+		{
+			this.count ++;
+		}
+		CountHandler.prototype.SetCount = function(num)
+		{
+			this.count = num
+		}
+
+		window.GameEvent = GameEvent;
+		window.CountHandler = CountHandler;
+	},
+
+	"UPTEMPLATE": function()
+	{
+		// 增强样板的一些函数
+
+		// 虚拟跳跃
+		this.jumpVirtualBlock = function(id, sx, sy, ex, ey, time, keep, callback)
+		{
+			time = time || 500;
+			var block = core.maps.initBlock(sx, sy, id, true, core.floors[core.status.floorId]);
+			var blockInfo = core.getBlockInfo(block);
+			var canvases = core.maps._initDetachedBlock(blockInfo, sx, sy, block.event.animate !== false);
+			core.maps._moveDetachedBlock(blockInfo, 32 * sx, 32 * sy, 1, canvases);
+			var jumpInfo = core.maps.__generateJumpInfo(sx, sy, ex, ey, time);
+			jumpInfo.keep = keep;
+			core.maps._jumpBlock_doJump(blockInfo, canvases, jumpInfo, callback);
+		}
+
+	}
 }

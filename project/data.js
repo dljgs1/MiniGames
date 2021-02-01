@@ -410,11 +410,11 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 		"lavaDamage": 100,
 		"poisonDamage": 10,
 		"weakValue": 20,
-		"redGem": 3,
-		"blueGem": 3,
-		"greenGem": 5,
-		"redPotion": 100,
-		"bluePotion": 250,
+		"redGem": 1,
+		"blueGem": 1,
+		"greenGem": 2,
+		"redPotion": 50,
+		"bluePotion": 100,
 		"yellowPotion": 500,
 		"greenPotion": 800,
 		"breakArmor": 0.9,
@@ -423,7 +423,16 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 		"hatred": 2,
 		"animateSpeed": 400,
 		"statusCanvasRowsOnMobile": 3,
-		"floorChangeTime": 500
+		"floorChangeTime": 500,
+		"combineGift":
+		{
+			"smallThr": 10,
+			"midThr": 23,
+			"bigThr": 42,
+			"smallList": [31, 32],
+			"midList": [27, 28, 29],
+			"bigList": [30],
+		}
 	},
 	"flags": {
 		"statusBarItems": [

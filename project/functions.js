@@ -304,8 +304,8 @@ var functions_d6ad677b_427a_4623_b50f_a445a3b0ef8a =
 	}, enemy.money);
 	if (core.hasItem('coin')) money *= 2; // 幸运金币：双倍
 	if (core.hasFlag('curse')) money = 0; // 诅咒效果
-	core.status.hero.money += money;
-	core.status.hero.statistics.money += money;
+	// core.status.hero.money += money;
+	// core.status.hero.statistics.money += money;
 
 	// 获得经验
 	var exp = guards.reduce(function (curr, g) {
@@ -315,9 +315,9 @@ var functions_d6ad677b_427a_4623_b50f_a445a3b0ef8a =
 	core.status.hero.exp += exp;
 	core.status.hero.statistics.exp += exp;
 
-	var hint = "打败 " + enemy.name;
-	if (core.flags.statusBarItems.indexOf('enableMoney') >= 0) hint += "，金币+" + money;
-	if (core.flags.statusBarItems.indexOf('enableExp') >= 0) hint += "，经验+" + exp;
+	var hint = "推动 " + enemy.name;
+	// if (core.flags.statusBarItems.indexOf('enableMoney') >= 0) hint += "，金币+" + money;
+	// if (core.flags.statusBarItems.indexOf('enableExp') >= 0) hint += "，经验+" + exp;
 	core.drawTip(hint, enemy.id);
 
 	// 中毒
@@ -1098,7 +1098,7 @@ var functions_d6ad677b_427a_4623_b50f_a445a3b0ef8a =
 
 	// 设置楼层名
 	if (core.status.floorId) {
-		core.setStatusBarInnerHTML('floor', core.status.maps[core.status.floorId].name);
+		core.setStatusBarInnerHTML('floor', core.getFlag("turn", 0)); // core.status.maps[core.status.floorId].name
 	}
 
 	// 设置勇士名字和图标
