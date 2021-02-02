@@ -514,9 +514,10 @@ var functions_d6ad677b_427a_4623_b50f_a445a3b0ef8a =
 		hero_def = core.getRealStatusOrDefault(hero, 'def'),
 		hero_mdef = core.getRealStatusOrDefault(hero, 'mdef');
 
-	var mon_hp = enemy.hp,
-		mon_atk = enemy.atk,
-		mon_def = enemy.def,
+	var turn = core.getFlag("turn", 0);
+	var mon_hp = enemy.hp + Math.floor(turn / 5),
+		mon_atk = enemy.atk + Math.floor(turn / 34),
+		mon_def = enemy.def + Math.floor(turn / 33),
 		mon_special = enemy.special;
 	var mon_money = enemy.money,
 		mon_exp = enemy.exp,

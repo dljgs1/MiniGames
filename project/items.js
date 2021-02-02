@@ -49,48 +49,8 @@ var items_296f5d02_12fd_4166_a7c1_b5e830c9ee3a =
 		"cls": "items",
 		"name": "黄宝石",
 		"text": "可以进行加点",
-		"itemEffect": "core.status.hero.hp+=1000;core.status.hero.atk+=6;core.status.hero.def+=6;core.status.hero.mdef+=10;",
+		"itemEffect": "core.status.hero.hp+=100;core.status.hero.atk+=1;core.status.hero.def+=1;core.status.hero.mdef+=2;",
 		"itemEffectTip": "，全属性提升",
-		"useItemEvent": [
-			{
-				"type": "choices",
-				"choices": [
-					{
-						"text": "攻击+1",
-						"action": [
-							{
-								"type": "setValue",
-								"name": "status:atk",
-								"operator": "+=",
-								"value": "1"
-							}
-						]
-					},
-					{
-						"text": "防御+2",
-						"action": [
-							{
-								"type": "setValue",
-								"name": "status:def",
-								"operator": "+=",
-								"value": "2"
-							}
-						]
-					},
-					{
-						"text": "生命+200",
-						"action": [
-							{
-								"type": "setValue",
-								"name": "status:hp",
-								"operator": "+=",
-								"value": "200"
-							}
-						]
-					}
-				]
-			}
-		],
 		"canUseItemEffect": "true"
 	},
 	"redPotion": {

@@ -1481,13 +1481,27 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		}
 		//
 		var EdgeBlock = {id:0, event:{cls:"terrains"}};
+		var preOccupyBlock = {}; // 预占据的块 x,y: id
+		function PreOccupy(id, x, y)
+		{
+			preOccupyBlock[x+','+y] = id;
+		}
+		function CancelOccupy(x, y)
+		{
+			delete preOccupyBlock[x+','+y]
+		}
 		Vector.prototype.getBlock = function(x, y)
 		{
 			if (x == null)x = this.x;
 			if (y == null)y = this.y;
 			if (x >= core.__SIZE__ || x < 0 || y >= core.__SIZE__ || y < 0)return EdgeBlock; 
 			// if (x == core.getHeroLoc('x') && y == core.getHeroLoc('y'))return EdgeBlock;
-			return core.getBlock(x, y)
+			var ret = core.getBlock(x, y);
+			if(ret == null && preOccupyBlock[x+','+y])
+			{
+				return core.initBlock(x, y, preOccupyBlock[x+','+y], true);
+			}
+			return ret;
 		}
 		Vector.prototype.getWorldDirection = function(dir)
 		{
@@ -1609,8 +1623,8 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			switch(this.getFaceBlockCls())
 			{
 				case "items":
-					node = new ActionNode(EAction.STOP);
-					break;
+					// node = new ActionNode(EAction.STOP);
+					// break;
 				case "terrains":
 				case "animates":
 				case "npcs":
@@ -1656,7 +1670,6 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 					if(actor.validAction > 0)
 					{
 						core.addGameTurn();
-						core.generateNewMonster();
 					}
 					core.doAction();
 				}
@@ -1729,17 +1742,35 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 
 		this.startCombineGame = function()
 		{
-			core.setFlag("turn", 0);
+			core.setFlag("turn", -1);
+			core.addGameTurn();
 		}
 		
 		this.addGameTurn = function()
 		{
 			core.addFlag("turn", 1);
+			var newMon = core.getFlag("nextMon", null)
+			if(newMon && newMon.id)
+			{
+				if(!core.getBlock(newMon.x, newMon.y))
+				{
+					core.setBlock(newMon.id, newMon.x, newMon.y);
+				}
+			}
+			var nextMon = core.generateNewMonster();
+			core.clearGhostMap();
+			if(nextMon)
+			{
+				core.drawGhostBlock(nextMon.id, nextMon.x, nextMon.y);
+			}
+			core.setFlag("nextMon", nextMon);
 		}
 		
 
 		
 		// ----------- 随机性
+
+		// 生成空位置 以中心排序
 		this.generateEmptyLocs = function(powerCenter)
 		{
 			powerCenter = powerCenter || {x : core.__HALF_SIZE__, y : core.__HALF_SIZE__};
@@ -1751,12 +1782,12 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 				for(var j = 0; j < core.__SIZE__; j++)
 				{
 					var idx = i + ',' + j;
-					if(idx != heroloc && !blocks[idx])
+					if(idx != heroloc && !blocks[idx] && !preOccupyBlock[idx])
 					{
 						var dist = (i - powerCenter.x)**2 + (j - powerCenter.y)**2
 						arr.push({x:i, y:j, pow: dist});
 					}
-				}	
+				}
 			}
 			return arr.sort(function(a, b)
 			{
@@ -1772,13 +1803,16 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			var rpos = core.rand();
 			var emptyList = core.generateEmptyLocs();
 			var pos = emptyList[Math.max(Math.floor(rpos * emptyList.length / 2), 36)];
-			var rmon = core.rand() ** 1.8;
+			var rmon = core.rand();
 			var id = 0;
-			if(emptyList.length < 110 && turn % 5 != 0
+			if(emptyList.length < 120 && turn % 5 == 0
 				||
-				emptyList.length < 90 && turn % 11 != 0)
+				emptyList.length < 90 && turn % 3 == 0
+				||
+				emptyList.length < 50
+				)
 			{
-				return;
+				return null;
 			}
 			if(turn < 10)
 			{
@@ -1786,40 +1820,47 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			}
 			else if(turn < 25)
 			{
+				rmon **= Math.log10(turn);
 				id = combineList[Math.floor(rmon * 4)];
 			}
 			else if(turn < 50)
 			{
+				rmon **= Math.log10(turn);
 				id = combineList[Math.floor(rmon * 5)];
 			}
 			else
 			{
+				rmon **= Math.log10(turn);
 				id = combineList[Math.floor(rmon * 6)];
 			}
 			if(pos)
 			{
-				core.setBlock(id, pos.x, pos.y);
+				// core.drawAnimate("zone", pos.x, pos.y);
+				// core.setBlock(id, pos.x, pos.y);
+				pos.id = id;
+				return pos;// 改为预显示 便于下一步判断
 			}
 		}
 
 		this.generateNewItems = function(itemList, actor, callback)
 		{
 			var emptyLocs = core.generateEmptyLocs(actor.loc);
-			var Handle = new CountHandler(itemList.length);
+			var Handle = new CountHandler();
 			Handle.finishEvent.Add(this, callback);
-			for(var i in itemList)
-			{
-				var itemId = itemList[i];
-				var idx = Math.floor((core.rand()**1.5) * emptyLocs.length);
+			itemList.forEach(function(itemId){
+				var idx = Math.floor((core.rand()**3) * emptyLocs.length / 2);
 				var loc = emptyLocs[idx];
+				if(!loc)return;
 				emptyLocs.splice(idx, 1);
-				// Handle.Reduce();
+				PreOccupy(itemId, loc.x, loc.y);
+				Handle.AddCount();
 				core.jumpVirtualBlock(itemId, actor.loc.x, actor.loc.y, loc.x, loc.y, 250, true, 
 					function(){
+						CancelOccupy(loc.x, loc.y);
 						Handle.Reduce();
 					});
-				// core.setBlock(itemId, loc.x, loc.y);
-			}
+			});
+			if(Handle.count == 0)setTimeout(callback);
 		}
 
 		// ---- rewrite
@@ -1847,7 +1888,33 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			}
 			return false;
 		}
+		
+		var _drawMap_drawAll = core.maps._drawMap_drawAll;
+		core.maps._drawMap_drawAll = function()
+		{
+			_drawMap_drawAll.call(core.maps);
+			var nextMon = core.getFlag("nextMon", null);
+			if(nextMon)
+			{
+				core.clearGhostMap();
+				core.drawGhostBlock(nextMon.id, nextMon.x, nextMon.y);
+			}
+		}
+		
 		// ----------- 
+
+
+		this.drawGhostBlock = function(id, x, y)
+		{
+			var block = core.initBlock(x, y, id, true);
+			var ctx = core.createCanvas("ghost", 0, 0, core.__PIXELS__, core.__PIXELS__, 150);
+			ctx.globalAlpha = 0.5;
+			core.drawBlock(block, 0, ctx);
+		}
+		this.clearGhostMap = function()
+		{
+			core.clearMap("ghost");
+		}
 
 	},
 
@@ -2095,10 +2162,15 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		// 虚拟跳跃
 		this.jumpVirtualBlock = function(id, sx, sy, ex, ey, time, keep, callback)
 		{
+			if(core.isReplaying())
+			{
+				core.setBlock(id, ex, ey);
+				return setTimeout(callback);
+			}
 			time = time || 500;
 			var block = core.maps.initBlock(sx, sy, id, true, core.floors[core.status.floorId]);
 			var blockInfo = core.getBlockInfo(block);
-			var canvases = core.maps._initDetachedBlock(blockInfo, sx, sy, block.event.animate !== false);
+			var canvases = core.maps._initDetachedBlock(blockInfo, sx, sy, block.event.animate !== false, "v_"+ex+"_"+ey);
 			core.maps._moveDetachedBlock(blockInfo, 32 * sx, 32 * sy, 1, canvases);
 			var jumpInfo = core.maps.__generateJumpInfo(sx, sy, ex, ey, time);
 			jumpInfo.keep = keep;

@@ -2138,11 +2138,12 @@ maps.prototype.resetMap = function (floorId) {
 // -------- 移动/跳跃图块，图块的淡入淡出 -------- //
 
 ////// 初始化独立的block canvas //////
-maps.prototype._initDetachedBlock = function (blockInfo, x, y, displayDamage) {
-    var headCanvas = null, bodyCanvas = '__body_' + x + "_" + y, damageCanvas = null;
+maps.prototype._initDetachedBlock = function (blockInfo, x, y, displayDamage, name) {
+    var headCanvas = null, bodyCanvas = name + '__body_' + x + "_" + y, damageCanvas = null;
+    name = name || "";
     // head
     if (blockInfo.height > 32) {
-        headCanvas = "__head_" + x + "_" + y;
+        headCanvas = name + "__head_" + x + "_" + y;
         core.createCanvas(headCanvas, 0, 0, 32, blockInfo.height - 32, 55);
     }
     // body
@@ -2155,7 +2156,7 @@ maps.prototype._initDetachedBlock = function (blockInfo, x, y, displayDamage) {
         damageColor = damageString.color;
     }
     if (damage != null) {
-        damageCanvas = "__damage_" + x + "_" + y;
+        damageCanvas = name + "__damage_" + x + "_" + y;
         var ctx = core.createCanvas(damageCanvas, 0, 0, 32, 32, 65);
         ctx.textAlign = 'left';
         ctx.font = "bold 11px Arial";

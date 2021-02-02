@@ -415,8 +415,8 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 		"greenGem": 2,
 		"redPotion": 50,
 		"bluePotion": 100,
-		"yellowPotion": 500,
-		"greenPotion": 800,
+		"yellowPotion": 200,
+		"greenPotion": 200,
 		"breakArmor": 0.9,
 		"counterAttack": 0.1,
 		"purify": 3,
@@ -431,7 +431,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 			"bigThr": 42,
 			"smallList": [31, 32],
 			"midList": [27, 28, 29],
-			"bigList": [30],
+			"bigList": [34, 33],
 		}
 	},
 	"flags": {
