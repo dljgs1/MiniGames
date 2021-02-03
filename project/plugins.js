@@ -186,7 +186,7 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		if (!core.hasFlag("__shops__")) core.setFlag("__shops__", {});
 		var shops = core.getFlag("__shops__");
 		if (!shops[id]) shops[id] = {};
-		return shops[id].visited;
+		return shops[id].visited || id == "itemShop";
 	}
 
 	/// 当前应当显示的快捷商店列表
@@ -199,6 +199,7 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 	/// 是否能够打开某个商店
 	this.canOpenShop = function (id) {
 		if (this.isShopVisited(id)) return true;
+		if (id == "itemShop") return true;
 		var shop = core.status.shops[id];
 		if (shop.item || shop.commonEvent || shop.mustEnable) return false;
 		return true;
@@ -1403,7 +1404,10 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 				this.loc.reverse();
 				if(back)
 				{
-					return this.trans(success);
+					if(back.event.cls == "enemys")
+						return this.trans(success);
+					else
+						return this.stop(success);
 				}
 			}
 			else
@@ -1688,7 +1692,7 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 						var flagName = item + "Count";
 						var configThr = item + "Thr";
 						var configList = item + "List";
-						if(core.status.hero.money - (core.getFlag(flagName, 0) + 1) * core.values.combineGift[configThr] >= 0)
+						if(core.status.hero.statistics.money - (core.getFlag(flagName, 0) + 1) * core.values.combineGift[configThr] >= 0)
 						{
 							var idx = core.getFlag(flagName, 0) % core.values.combineGift[configList].length;
 							giftList.push(core.values.combineGift[configList][idx]);
@@ -1844,18 +1848,34 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 
 		this.generateNewItems = function(itemList, actor, callback)
 		{
-			var emptyLocs = core.generateEmptyLocs(actor.loc);
+			var hasMagnet = core.hasItem("cross");
+			var emptyLocs = [core.status.hero.loc];
+			if(!hasMagnet)
+			{
+				emptyLocs = core.generateEmptyLocs(actor.loc);
+			}
 			var Handle = new CountHandler();
 			Handle.finishEvent.Add(this, callback);
 			itemList.forEach(function(itemId){
-				var idx = Math.floor((core.rand()**3) * emptyLocs.length / 2);
+				var idx = 0;
+				if(!hasMagnet)
+				{
+					idx = Math.floor((core.rand()**3) * emptyLocs.length / 2);
+				}
 				var loc = emptyLocs[idx];
 				if(!loc)return;
-				emptyLocs.splice(idx, 1);
-				PreOccupy(itemId, loc.x, loc.y);
+				if(!hasMagnet)
+				{
+					emptyLocs.splice(idx, 1);
+					PreOccupy(itemId, loc.x, loc.y);
+				}
 				Handle.AddCount();
-				core.jumpVirtualBlock(itemId, actor.loc.x, actor.loc.y, loc.x, loc.y, 250, true, 
+				core.jumpVirtualBlock(itemId, actor.loc.x, actor.loc.y, loc.x, loc.y, 250, !hasMagnet, 
 					function(){
+						if(hasMagnet)
+						{
+							core.getItem(core.maps.blocksInfo[itemId].id, 1);
+						}
 						CancelOccupy(loc.x, loc.y);
 						Handle.Reduce();
 					});
@@ -2164,7 +2184,7 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		{
 			if(core.isReplaying())
 			{
-				core.setBlock(id, ex, ey);
+				if(keep)core.setBlock(id, ex, ey);
 				return setTimeout(callback);
 			}
 			time = time || 500;

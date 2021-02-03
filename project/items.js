@@ -298,8 +298,8 @@ var items_296f5d02_12fd_4166_a7c1_b5e830c9ee3a =
 	},
 	"cross": {
 		"cls": "constants",
-		"name": "十字架",
-		"text": "持有后无视怪物的无敌属性"
+		"name": "磁铁",
+		"text": "持有后可以自动吸取掉落物品"
 	},
 	"dagger": {
 		"cls": "constants",

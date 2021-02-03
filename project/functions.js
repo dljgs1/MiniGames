@@ -517,7 +517,7 @@ var functions_d6ad677b_427a_4623_b50f_a445a3b0ef8a =
 	var turn = core.getFlag("turn", 0);
 	var mon_hp = enemy.hp + Math.floor(turn / 5),
 		mon_atk = enemy.atk + Math.floor(turn / 34),
-		mon_def = enemy.def + Math.floor(turn / 33),
+		mon_def = enemy.def// + Math.floor(turn / 33),
 		mon_special = enemy.special;
 	var mon_money = enemy.money,
 		mon_exp = enemy.exp,
@@ -1539,7 +1539,7 @@ var functions_d6ad677b_427a_4623_b50f_a445a3b0ef8a =
 
 		// 绘制楼层
 		core.drawImage(ctx, core.statusBar.icons.floor, 6, 9, 25, 25);
-		_fillBoldTextWithFontCheck((core.status.thisMap || {}).name || "", 42, 29);
+		_fillBoldTextWithFontCheck(core.getFlag("turn", 0), 42, 29);
 
 		// 绘制生命
 		core.drawImage(ctx, core.statusBar.icons.hp, 6, 43, 25, 25);

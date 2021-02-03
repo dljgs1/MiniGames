@@ -348,14 +348,15 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 				"id": "itemShop",
 				"item": true,
 				"textInList": "道具商店",
+				"text": "\t[贪婪之神,expShop]拿生命来兑换你想要的道具",
 				"mustEnable": false,
 				"choices": [
 					{
-						"id": "yellowKey",
-						"number": 10,
-						"money": "10",
+						"id": "cross",
+						"number": 1,
+						"money": "100",
 						"sell": "5"
-					}
+					},
 				]
 			},
 			{
@@ -442,7 +443,8 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 			"enableDef",
 			"enableMDef",
 			"enableMoney",
-			"enableKeys"
+			"enableKeys",
+			"enableExp",
 		],
 		"flyNearStair": true,
 		"flyRecordPosition": false,
@@ -454,7 +456,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 		"betweenAttackMax": false,
 		"useLoop": false,
 		"startUsingCanvas": false,
-		"statusCanvas": false,
+		"statusCanvas": true,
 		"displayEnemyDamage": true,
 		"displayCritical": true,
 		"displayExtraDamage": true,
