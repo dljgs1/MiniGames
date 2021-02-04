@@ -291,9 +291,9 @@ var items_296f5d02_12fd_4166_a7c1_b5e830c9ee3a =
 	},
 	"freezeBadge": {
 		"cls": "constants",
-		"name": "冰冻徽章",
-		"text": "可以将面前的熔岩变成平地",
-		"useItemEffect": "(function () {\n\tvar success = false;\n\n\tvar snowFourDirections = false; // 是否四方向雪花；如果是将其改成true\n\tif (snowFourDirections) {\n\t\t// 四方向雪花\n\t\tfor (var direction in core.utils.scan) {\n\t\t\tvar delta = core.utils.scan[direction];\n\t\t\tvar nx = core.getHeroLoc('x') + delta.x,\n\t\t\t\tny = core.getHeroLoc('y') + delta.y;\n\t\t\tif (core.getBlockId(nx, ny) == 'lava') {\n\t\t\t\tcore.removeBlock(nx, ny);\n\t\t\t\tsuccess = true;\n\t\t\t}\n\t\t}\n\t} else {\n\t\tif (core.getBlockId(core.nextX(), core.nextY()) == 'lava') {\n\t\t\tcore.removeBlock(core.nextX(), core.nextY());\n\t\t\tsuccess = true;\n\t\t}\n\t}\n\n\tif (success) {\n\t\tcore.drawTip(core.material.items[itemId].name + '使用成功');\n\t} else {\n\t\tcore.drawTip(\"当前无法使用\" + core.material.items[itemId].name);\n\t\tcore.addItem(itemId, 1);\n\t\treturn;\n\t}\n})();",
+		"name": "等待",
+		"text": "什么也不做，等待一回合。",
+		"useItemEffect": "(function () {core.addGameTurn()})();",
 		"canUseItemEffect": "true"
 	},
 	"cross": {
@@ -402,10 +402,10 @@ var items_296f5d02_12fd_4166_a7c1_b5e830c9ee3a =
 	},
 	"superWine": {
 		"cls": "tools",
-		"name": "万能药水",
-		"text": "可以解除所有不良状态",
-		"useItemEffect": "core.triggerDebuff('remove', ['poison', 'weak', 'curse']);",
-		"canUseItemEffect": "(function() {\n\treturn core.hasFlag('poison') || core.hasFlag('weak') || core.hasFlag('curse');\n})();"
+		"name": "力量药水",
+		"text": "使用后下次推动力量翻倍（可叠加）",
+		"useItemEffect": "core.setFlag('forceMul', core.getFlag('forceMul', 1) * 2)",
+		"canUseItemEffect": "true"
 	},
 	"hammer": {
 		"cls": "tools",
@@ -414,8 +414,8 @@ var items_296f5d02_12fd_4166_a7c1_b5e830c9ee3a =
 	},
 	"lifeWand": {
 		"cls": "tools",
-		"name": "生命魔杖",
-		"text": "可以恢复100点生命值",
+		"name": "清绿魔杖",
+		"text": "持有时禁止坠落零伤怪物。也可以用掉恢复100点生命值",
 		"useItemEvent": [
 			{
 				"type": "comment",

@@ -561,9 +561,11 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			var curr = start + i;
 			if (curr >= list.length) break;
 			var item = list[curr];
+			if(item.number == 0)core.setAlpha('uievent', 0.5);
 			core.drawIcon('uievent', item.id, 10, 125 + i * 40);
 			core.setTextAlign('uievent', 'left');
 			core.fillText('uievent', core.material.items[item.id].name, 50, 132 + i * 40, null, bigFont);
+			core.setAlpha('uievent', 1);
 			core.setTextAlign('uievent', 'right');
 			core.fillText('uievent', (type == 0 ? core.calValue(item.money) : core.calValue(item.sell)) + useText + "/个", 300, 133 + i * 40, null, middleFont);
 			core.setTextAlign("uievent", "left");
@@ -1666,7 +1668,8 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			var target = core.getBlock(sx, sy);
 			if(!target)return;
 			var actor = new Actor(sx, sy, direction);
-			actor.force = core.getFlag("force", 5);
+			actor.force = core.getRealForce();
+			core.setFlag("forceMul", 1);
 			var Handle =  new CountHandler(1);
 			Handle.finishEvent.Add(
 				Handle, function()
@@ -1726,6 +1729,8 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		for(var i = 0; i < combineList.length; i++)
 		{
 			var id = combineList[i];
+			var enemyId = core.maps.blocksInfo[id].id;
+			core.enemys.enemys[enemyId].money = core.material.enemys[enemyId].money = i + 1; // 金币 = 等级
 			combineInfo[id] = 
 			{
 				id : id,
@@ -1742,6 +1747,11 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		this.getCombineId = function(id)
 		{
 			return combineInfo[id].next;
+		}
+
+		this.getRealForce = function()
+		{
+			return core.getFlag("force", 5) * core.getFlag("forceMul", 1);
 		}
 
 		this.startCombineGame = function()
@@ -1769,8 +1779,6 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			}
 			core.setFlag("nextMon", nextMon);
 		}
-		
-
 		
 		// ----------- 随机性
 
@@ -1818,26 +1826,35 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			{
 				return null;
 			}
+			var monList = combineList.filter(function(it){
+				var ret = combineList.indexOf(it) < combineList.length - 3; // 最后三个怪物必定不能掉落
+				if(core.hasItem("lifeWand")) // 持有生命魔杖时 不掉落零伤怪
+				{
+					ret = ret && core.getDamage(core.maps.blocksInfo[it].id) != 0;
+				}
+				return ret;
+			});
+
 			if(turn < 10)
 			{
-				id = combineList[Math.floor(rmon * 3)];
+				id = monList[Math.floor(rmon * 3)];
 			}
 			else if(turn < 25)
 			{
 				rmon **= Math.log10(turn);
-				id = combineList[Math.floor(rmon * 4)];
+				id = monList[Math.floor(rmon * 4)];
 			}
 			else if(turn < 50)
 			{
 				rmon **= Math.log10(turn);
-				id = combineList[Math.floor(rmon * 5)];
+				id = monList[Math.floor(rmon * 5)];
 			}
 			else
 			{
 				rmon **= Math.log10(turn);
-				id = combineList[Math.floor(rmon * 6)];
+				id = monList[Math.floor(rmon * 6)];
 			}
-			if(pos)
+			if(pos && id)
 			{
 				// core.drawAnimate("zone", pos.x, pos.y);
 				// core.setBlock(id, pos.x, pos.y);
@@ -1927,7 +1944,7 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		this.drawGhostBlock = function(id, x, y)
 		{
 			var block = core.initBlock(x, y, id, true);
-			var ctx = core.createCanvas("ghost", 0, 0, core.__PIXELS__, core.__PIXELS__, 150);
+			var ctx = core.createCanvas("ghost", 0, 0, core.__PIXELS__, core.__PIXELS__, 125);
 			ctx.globalAlpha = 0.5;
 			core.drawBlock(block, 0, ctx);
 		}

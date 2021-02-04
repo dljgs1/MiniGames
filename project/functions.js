@@ -1562,8 +1562,11 @@ var functions_d6ad677b_427a_4623_b50f_a445a3b0ef8a =
 		_fillBoldTextWithFontCheck(core.formatBigNumber(core.status.hero.money), 42, 199);
 
 		// 绘制经验
-		core.drawImage(ctx, core.statusBar.icons.exp, 6, 213, 25, 25);
-		_fillBoldTextWithFontCheck(core.formatBigNumber(core.status.hero.exp), 42, 233);
+		if (core.flags.statusBarItems.indexOf('enableExp') >= 0)
+		{
+			core.drawImage(ctx, core.statusBar.icons.exp, 6, 213, 25, 25);
+			_fillBoldTextWithFontCheck(core.formatBigNumber(core.status.hero.exp), 42, 233);
+		}
 
 		// 绘制三色钥匙
 		_fillBoldTextWithFontCheck(core.setTwoDigits(core.itemCount('yellowKey')), 11, 267, '#FFCCAA');
@@ -1575,7 +1578,7 @@ var functions_d6ad677b_427a_4623_b50f_a445a3b0ef8a =
 
 		// 绘制楼层
 		core.drawImage(ctx, core.statusBar.icons.floor, 6, 6, 25, 25);
-		_fillBoldTextWithFontCheck((core.status.thisMap || {}).name || "", 42, 26);
+		_fillBoldTextWithFontCheck(core.getFlag("turn", 0), 42, 26);
 
 		// 绘制生命
 		core.drawImage(ctx, core.statusBar.icons.hp, 137, 6, 25, 25);
@@ -1593,18 +1596,41 @@ var functions_d6ad677b_427a_4623_b50f_a445a3b0ef8a =
 		core.drawImage(ctx, core.statusBar.icons.mdef, 137, 38, 25, 25);
 		_fillBoldTextWithFontCheck(core.formatBigNumber(core.getRealStatus('mdef')), 173, 58);
 
+		// 绘制力量
+		core.drawImage(ctx, core.statusBar.icons.exp, 268, 38, 25, 25);
+		_fillBoldTextWithFontCheck(core.formatBigNumber(core.getRealForce()), 304, 58);
+
 		// 绘制金币
-		core.drawImage(ctx, core.statusBar.icons.money, 268, 38, 25, 25);
-		_fillBoldTextWithFontCheck(core.formatBigNumber(core.status.hero.money), 304, 58);
+		core.drawImage(ctx, core.statusBar.icons.money, 6, 70, 25, 25);
+		_fillBoldTextWithFontCheck(core.formatBigNumber(core.status.hero.money), 42, 90);
 
 		// 绘制经验
-		core.drawImage(ctx, core.statusBar.icons.exp, 6, 70, 25, 25);
-		_fillBoldTextWithFontCheck(core.formatBigNumber(core.status.hero.exp), 42, 90);
+		// core.drawImage(ctx, core.statusBar.icons.exp, 6, 70, 25, 25);
+		// _fillBoldTextWithFontCheck(core.formatBigNumber(core.status.hero.exp), 42, 90);
 
 		// 绘制三色钥匙
-		_fillBoldTextWithFontCheck(core.setTwoDigits(core.itemCount('yellowKey')), 142, 90, '#FFCCAA');
-		_fillBoldTextWithFontCheck(core.setTwoDigits(core.itemCount('blueKey')), 177, 90, '#AAAADD');
-		_fillBoldTextWithFontCheck(core.setTwoDigits(core.itemCount('redKey')), 212, 90, '#FF8888');
+		// _fillBoldTextWithFontCheck(core.setTwoDigits(core.itemCount('yellowKey')), 142, 90, '#FFCCAA');
+		// _fillBoldTextWithFontCheck(core.setTwoDigits(core.itemCount('blueKey')), 177, 90, '#AAAADD');
+		// _fillBoldTextWithFontCheck(core.setTwoDigits(core.itemCount('redKey')), 212, 90, '#FF8888');
+		// 绘制距离下次获得物品
+		if(core.getFlag("smallCount", 0) > 0)
+		{
+			var sx = 142, sy = 90;
+			var dx = 60, dy = 0;
+			var itemList = ["small","mid","big"];
+			for(var i = 0; i < 3; i++)
+			{
+				var item = itemList[i]; 
+				var flagName = item + "Count";
+				var configThr = item + "Thr";
+				var configList = item + "List";
+				var resCount = (core.getFlag(flagName, 0) + 1) * core.values.combineGift[configThr] - core.status.hero.statistics.money;
+				var idx = core.getFlag(flagName, 0) % core.values.combineGift[configList].length;
+				var itemId = core.maps.blocksInfo[core.values.combineGift[configList][idx]].id;
+				core.drawIcon(ctx, itemId, sx + dx * i, sy + dy * i - 18, 24, 24)
+				_fillBoldTextWithFontCheck(core.setTwoDigits(resCount), sx + dx * i + 32, sy + dy * i, '#FFFDDD');
+			}
+		}
 	}
 },
         "drawStatistics": function () {

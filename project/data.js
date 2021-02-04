@@ -97,7 +97,8 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 			"equipment": [],
 			"items": {
 				"constants": {
-					"book": 1
+					"book": 1,
+					"freezeBadge": 1,
 				},
 				"tools": {},
 				"equips": {}
@@ -348,15 +349,27 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 				"id": "itemShop",
 				"item": true,
 				"textInList": "道具商店",
-				"text": "\t[贪婪之神,expShop]拿生命来兑换你想要的道具",
 				"mustEnable": false,
 				"choices": [
 					{
 						"id": "cross",
 						"number": 1,
+						"money": "50",
+						"sell": "5"
+					},
+					{
+						"id": "lifeWand",
+						"number": 10,
 						"money": "100",
 						"sell": "5"
 					},
+					{
+						"id": "superWine",
+						"number": 99,
+						"money": "5",
+						"sell": "5"
+					},
+					
 				]
 			},
 			{
@@ -444,7 +457,6 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 			"enableMDef",
 			"enableMoney",
 			"enableKeys",
-			"enableExp",
 		],
 		"flyNearStair": true,
 		"flyRecordPosition": false,
