@@ -76,7 +76,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 		}
 	},
 	"firstData": {
-		"title": "合成大魔王",
+		"title": "寻找魔王",
 		"name": "combineKing",
 		"version": "Ver 2.7.3.1",
 		"floorId": "MT0",
@@ -108,7 +108,10 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 				"x": 6,
 				"y": 10
 			},
-			"flags": {},
+			"flags": {
+				"force": 5,
+				"forceMul": 1,
+			},
 			"followers": [],
 			"steps": 0
 		},
@@ -249,14 +252,14 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 		"shops": [
 			{
 				"id": "shop1",
-				"text": "\t[贪婪之神,moneyShop]勇敢的武士啊, 给我${20+2*flag:shop1}金币就可以：",
-				"textInList": "1F金币商店",
+				"text": "\t[贪婪之神,moneyShop]勇敢的武士啊, 给我${20+20*flag:shop1}金币就可以：",
+				"textInList": "金币商店",
 				"mustEnable": false,
 				"disablePreview": false,
 				"choices": [
 					{
 						"text": "生命+800",
-						"need": "status:money>=20+2*flag:shop1",
+						"need": "status:money>=20+20*flag:shop1",
 						"action": [
 							{
 								"type": "comment",
@@ -284,7 +287,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 					},
 					{
 						"text": "攻击+4",
-						"need": "status:money>=20+2*flag:shop1",
+						"need": "status:money>=20+20*flag:shop1",
 						"action": [
 							{
 								"type": "comment",
@@ -307,6 +310,34 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 								"name": "status:atk",
 								"operator": "+=",
 								"value": "4"
+							}
+						]
+					},
+					{
+						"text": "防御+3",
+						"need": "status:money>=20+20*flag:shop1",
+						"action": [
+							{
+								"type": "comment",
+								"text": "新版商店中需要手动扣减金币和增加访问次数"
+							},
+							{
+								"type": "setValue",
+								"name": "status:money",
+								"operator": "-=",
+								"value": "20+2*flag:shop1"
+							},
+							{
+								"type": "setValue",
+								"name": "flag:shop1",
+								"operator": "+=",
+								"value": "1"
+							},
+							{
+								"type": "setValue",
+								"name": "status:def",
+								"operator": "+=",
+								"value": "3"
 							}
 						]
 					}
@@ -367,6 +398,12 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 						"id": "superWine",
 						"number": 99,
 						"money": "5",
+						"sell": "5"
+					},
+					{
+						"id": "sword0",
+						"number": 5,
+						"money": "100",
 						"sell": "5"
 					},
 					

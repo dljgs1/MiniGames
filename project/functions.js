@@ -56,7 +56,7 @@ var functions_d6ad677b_427a_4623_b50f_a445a3b0ef8a =
 	// 请注意，成绩统计时是按照hp进行上传并排名
 	// 可以先在这里对最终分数进行计算，比如将2倍攻击和5倍黄钥匙数量加到分数上
 	// core.status.hero.hp += 2 * core.getRealStatus('atk') + 5 * core.itemCount('yellowKey');
-
+	core.status.hero.hp = core.status.hero.money * 1000 / core.getFlag("turn", 1);
 	// 如果不退出，则临时存储数据
 	if (noexit) {
 		core.status.extraEvent = core.clone(core.status.event);
@@ -381,6 +381,11 @@ var functions_d6ad677b_427a_4623_b50f_a445a3b0ef8a =
 	}
 	core.push(todo, enemy.afterBattle);
 
+	if(enemyId == "redKing")
+	{
+		return core.win("击败红衣魔王");
+	}
+
 	// 在这里增加其他的自定义事件需求
 	/*
 	if (enemyId=='xxx') {
@@ -515,8 +520,8 @@ var functions_d6ad677b_427a_4623_b50f_a445a3b0ef8a =
 		hero_mdef = core.getRealStatusOrDefault(hero, 'mdef');
 
 	var turn = core.getFlag("turn", 0);
-	var mon_hp = enemy.hp + Math.floor(turn / 5),
-		mon_atk = enemy.atk + Math.floor(turn / 34),
+	var mon_hp = enemy.hp + Math.floor(turn / 8),
+		mon_atk = enemy.atk + Math.floor(turn / 40),
 		mon_def = enemy.def// + Math.floor(turn / 33),
 		mon_special = enemy.special;
 	var mon_money = enemy.money,

@@ -1,0 +1,9 @@
+ blue wb gold mw
+0.png 1 1 0 0
+1.png 1 1 0 0
+4.png 1 0 0 1
+5.png 1 0 0 1
+182.png 0 1 1 0
+183.png 0 1 1 0
+188.png 0 0 1 1
+189.png 0 0 1 1

@@ -91,8 +91,8 @@ var items_296f5d02_12fd_4166_a7c1_b5e830c9ee3a =
 	},
 	"sword0": {
 		"cls": "items",
-		"name": "破旧的剑",
-		"text": "一把已经生锈的剑",
+		"name": "力量之种",
+		"text": "服用后永久性增加力量1点，能将怪物推得更远。",
 		"equip": {
 			"type": 0,
 			"animate": "sword",
@@ -100,8 +100,8 @@ var items_296f5d02_12fd_4166_a7c1_b5e830c9ee3a =
 				"atk": 0
 			}
 		},
-		"itemEffect": "core.status.hero.atk += 0",
-		"itemEffectTip": "，攻击+0"
+		"itemEffect": "core.addFlag('force', 1)",
+		"itemEffectTip": "，力量+1"
 	},
 	"sword1": {
 		"cls": "items",
@@ -415,7 +415,7 @@ var items_296f5d02_12fd_4166_a7c1_b5e830c9ee3a =
 	"lifeWand": {
 		"cls": "tools",
 		"name": "清绿魔杖",
-		"text": "持有时禁止坠落零伤怪物。也可以用掉恢复100点生命值",
+		"text": "持有时禁止坠落零伤怪物。也可以用掉恢复1000点生命值",
 		"useItemEvent": [
 			{
 				"type": "comment",
@@ -443,9 +443,9 @@ var items_296f5d02_12fd_4166_a7c1_b5e830c9ee3a =
 						"type": "setValue",
 						"name": "status:hp",
 						"operator": "+=",
-						"value": "flag:input*100"
+						"value": "flag:input*1000"
 					},
-					"成功使用${flag:input}次生命魔杖，恢复${flag:input*100}点生命。"
+					"成功使用${flag:input}次生命魔杖，恢复${flag:input*1000}点生命。"
 				],
 				"false": [
 					"输入不合法！"

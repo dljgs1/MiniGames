@@ -78,6 +78,6 @@ var enemys_fcae963b_31c9_42b4_b48c_bb48d09f3f80 =
 	"blackKing": {"name":"黑衣魔王","hp":1000,"atk":500,"def":0,"money":1000,"exp":1000,"point":0,"special":0,"notBomb":true},
 	"yellowKing": {"name":"黄衣魔王","hp":0,"atk":0,"def":0,"money":0,"exp":0,"point":0,"special":0},
 	"greenKing": {"name":"青衣武士","hp":0,"atk":0,"def":0,"money":0,"exp":0,"point":0,"special":0},
-	"redKing": {"name":"红衣魔王","hp":1000,"atk":250,"def":50,"money":100,"exp":0,"point":0,"special":0},
-	"blueKing": {"name":"白衣武士","hp":100,"atk":120,"def":0,"money":17,"exp":0,"point":0,"special":16}
+	"redKing": {"name":"红衣魔王","hp":1000,"atk":150,"def":20,"money":100,"exp":0,"point":0,"special":0},
+	"blueKing": {"name":"白衣武士","hp":200,"atk":120,"def":10,"money":17,"exp":0,"point":0,"special":16}
 }
