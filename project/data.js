@@ -318,10 +318,6 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 						"need": "status:money>=20+20*flag:shop1",
 						"action": [
 							{
-								"type": "comment",
-								"text": "新版商店中需要手动扣减金币和增加访问次数"
-							},
-							{
 								"type": "setValue",
 								"name": "status:money",
 								"operator": "-=",
@@ -338,39 +334,6 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 								"name": "status:def",
 								"operator": "+=",
 								"value": "3"
-							}
-						]
-					}
-				]
-			},
-			{
-				"id": "shop2",
-				"text": "\t[贪婪之神,expShop]勇敢的武士啊, 给我一定经验就可以：",
-				"textInList": "1F经验商店",
-				"mustEnable": false,
-				"disablePreview": true,
-				"choices": [
-					{
-						"text": "等级+1（100经验）",
-						"need": "status:exp>=100",
-						"action": [
-							{
-								"type": "setValue",
-								"name": "status:exp",
-								"operator": "-=",
-								"value": "100"
-							},
-							{
-								"type": "setValue",
-								"name": "status:lv",
-								"operator": "+=",
-								"value": "1"
-							},
-							{
-								"type": "setValue",
-								"name": "status:hp",
-								"operator": "+=",
-								"value": "1000"
 							}
 						]
 					}
@@ -406,15 +369,14 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 						"money": "100",
 						"sell": "5"
 					},
-					
+					{
+						"id": "dagger",
+						"number": 20,
+						"money": "10",
+						"sell": "5"
+					},
 				]
 			},
-			{
-				"id": "keyShop",
-				"textInList": "回收钥匙商店",
-				"mustEnable": false,
-				"commonEvent": "回收钥匙商店"
-			}
 		],
 		"levelUp": [
 			{

@@ -302,9 +302,11 @@ var items_296f5d02_12fd_4166_a7c1_b5e830c9ee3a =
 		"text": "持有后可以自动吸取掉落物品"
 	},
 	"dagger": {
-		"cls": "constants",
-		"name": "屠龙匕首",
-		"text": "该道具尚未被定义"
+		"cls": "tools",
+		"name": "浮土",
+		"text": "使用后在脚下造出一堵墙，在被碰撞后会破碎。",
+		"useItemEffect": "(function () {core.addBlockWall()})();",
+		"canUseItemEffect": "!core.getBlock(core.getHeroLoc('x'),core.getHeroLoc('y'))"
 	},
 	"amulet": {
 		"cls": "constants",

@@ -1398,6 +1398,12 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		}
 		Actor.prototype.rebound = function(success)
 		{
+			var face = this.loc.getNearBlock(0);
+			if(face.id == 2)
+			{
+				// TODO: 播放破碎特效
+				core.removeBlock(this.loc.x + this.loc.dx, this.loc.y + this.loc.dy);
+			}
 			var left = this.loc.getNearBlock(-1);
 			var right = this.loc.getNearBlock(1);
 			var back = this.loc.getNearBlock(2);
@@ -1764,6 +1770,11 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		{
 			core.setFlag("turn", -1);
 			core.addGameTurn();
+		}
+		
+		this.addBlockWall = function()
+		{
+			core.setBlock(2, core.getHeroLoc('x'), core.getHeroLoc('y'));
 		}
 		
 		this.addGameTurn = function()
