@@ -186,7 +186,7 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		if (!core.hasFlag("__shops__")) core.setFlag("__shops__", {});
 		var shops = core.getFlag("__shops__");
 		if (!shops[id]) shops[id] = {};
-		return shops[id].visited || id == "itemShop";
+		return shops[id].visited;
 	}
 
 	/// 当前应当显示的快捷商店列表
@@ -199,7 +199,6 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 	/// 是否能够打开某个商店
 	this.canOpenShop = function (id) {
 		if (this.isShopVisited(id)) return true;
-		if (id == "itemShop") return true;
 		var shop = core.status.shops[id];
 		if (shop.item || shop.commonEvent || shop.mustEnable) return false;
 		return true;
@@ -1438,6 +1437,8 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		}
 		Actor.prototype.trans = function(success)
 		{
+			var srcId = this.block.id;
+			var srcLoc = new Vector(this.loc.x, this.loc.y, this.loc.direction)
 			this.loc.step();
 			this.initBlock();
 			if(this.block.event.cls != "enemys")
@@ -1451,6 +1452,12 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 				{
 					this.loc.step();
 					this.initBlock();
+					if(core.isCombineLevelHigher(this.block.id, srcId)) // 遇到强敌 执行弹回
+					{
+						this.loc.setLoc(srcLoc.x, srcLoc.y);
+						this.initBlock();
+						return this.rebound(success);
+					}
 				}
 				success.call(this);
 			}
@@ -1481,9 +1488,9 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			this.flow(function()
 			{
 				// if(itemId != 0)core.setBlock(itemId, lastLoc.x, lastLoc.y);
+				self.onCombineEvent.Bingo(self);
 				core.setBlock(id, self.loc.x, self.loc.y);
 				self.initBlock();
-				self.onCombineEvent.Bingo(self);
 				success.call(self);
 			})
 		}
@@ -1545,6 +1552,11 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 					return this.getBlock(this.x + dir.x, this.y + dir.y);
 				}
 			}
+		}
+		Vector.prototype.setLoc = function(x, y)
+		{
+			this.x = x;
+			this.y = y;
 		}
 		Vector.prototype.setDirection = function(direction)
 		{
@@ -1674,6 +1686,16 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 			this.doAction(node);
 		}
 
+		this.getMonArray = function()
+		{
+			var ret = [];
+			for(var i = 0; i < combineList.length - 1; i++)
+			{
+				ret.push(core.maps.blocksInfo[combineList[i]].id);
+			}
+			return ret;
+		}
+
 		// 对某个块施加力
 		this.AddForceToBlock = function(sx, sy, direction)
 		{
@@ -1699,9 +1721,14 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 				// 奖励相关: 大中小奖励（黄宝石、红蓝绿宝石、血瓶）
 				function()
 				{
+					if(this.block.event.id == "redKing")
+					{
+						core.setFlag("endFlag", true);
+					}
 					var info = core.getEnemyInfo(this.block.event.id);
 					core.status.hero.money += info.money;
 					core.status.hero.statistics.money += info.money;
+					core.playSound("combine.mp3");
 					var giftList = [];
 					["small","mid","big"].forEach(function(item){
 						var flagName = item + "Count";
@@ -1709,6 +1736,11 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 						var configList = item + "List";
 						if(core.status.hero.statistics.money - (core.getFlag(flagName, 0) + 1) * core.values.combineGift[configThr] >= 0)
 						{
+							if(core.getFlag("smallCount", 0) == 0)
+							{
+								core.insertCommonEvent("Guide", ["gift"]);
+							}
+							core.playSound("gift.mp3");
 							var idx = core.getFlag(flagName, 0) % core.values.combineGift[configList].length;
 							giftList.push(core.values.combineGift[configList][idx]);
 							core.addFlag(flagName, 1);
@@ -1779,7 +1811,26 @@ var plugins_bb40132b_638b_4a9f_b028_d3fe47acc8d1 =
 		
 		this.addGameTurn = function()
 		{
+			if(core.hasFlag("endFlag"))
+			{
+				return setTimeout(function(){
+					core.win("合成大魔王");
+				})
+			}
 			core.addFlag("turn", 1);
+			var curTurn = core.getFlag("turn", 0)
+			var turnMap = {
+				1:"first",
+				20:"shop2",
+				40:"shop1",
+			}
+			for(var i in turnMap)
+			{
+				if(curTurn == ~~ i)
+				{
+					core.insertCommonEvent("Guide", [turnMap[i]], null, null, null, false);
+				}
+			}
 			var newMon = core.getFlag("nextMon", null)
 			if(newMon && newMon.id)
 			{

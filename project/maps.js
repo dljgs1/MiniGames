@@ -238,5 +238,16 @@ var maps_90f36752_8815_4be8_b32b_d7fad1d0542e =
 	"315": {"cls":"terrains","id":"sWallBLR","name":"薄墙-下左右","cannotOut":["down","left","right"],"cannotIn":["down","left","right"]},
 	"316": {"cls":"terrains","id":"sWallTLR","name":"薄墙-上左右","cannotOut":["up","left","right"],"cannotIn":["up","left","right"]},
 	"317": {"cls":"terrains","id":"sWallTBR","name":"薄墙-上下右","cannotOut":["up","down","right"],"cannotIn":["up","down","right"]},
-	"318": {"cls":"terrains","id":"sWallTBL","name":"薄墙-上下左","cannotOut":["up","down","left"],"cannotIn":["up","down","left"]}
+	"318": {"cls":"terrains","id":"sWallTBL","name":"薄墙-上下左","cannotOut":["up","down","left"],"cannotIn":["up","down","left"]},
+	"319": {"cls":"items","id":"I319"},
+	"320": {"cls":"items","id":"I320"},
+	"321": {"cls":"items","id":"I321"},
+	"322": {"cls":"items","id":"I322"},
+	"323": {"cls":"items","id":"I323"},
+	"324": {"cls":"items","id":"I324"},
+	"325": {"cls":"items","id":"I325"},
+	"326": {"cls":"items","id":"I326"},
+	"327": {"cls":"items","id":"I327"},
+	"328": {"cls":"items","id":"I328"},
+	"329": {"cls":"items","id":"I329"}
 }

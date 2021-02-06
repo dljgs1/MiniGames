@@ -474,5 +474,112 @@ var items_296f5d02_12fd_4166_a7c1_b5e830c9ee3a =
 	"wand": {
 		"cls": "items",
 		"name": "新物品"
+	},
+	"I319": {
+		"cls": "items",
+		"name": "新物品"
+	},
+	"I320": {
+		"cls": "constants",
+		"name": "说明",
+		"text": "游戏说明",
+		"useItemEvent": [
+			{
+				"type": "dowhile",
+				"condition": "true",
+				"data": [
+					{
+						"type": "choices",
+						"text": "选择问题",
+						"choices": [
+							{
+								"text": "怪物合成序列",
+								"action": [
+									{
+										"type": "function",
+										"function": "function(){\nvar text = \"\";\ncore.getMonArray().forEach(function (item) { text += \"\\\\i[\" + item + \"] -> \" })\ncore.insertAction([text]);\n}"
+									}
+								]
+							},
+							{
+								"text": "推击",
+								"action": [
+									"与怪物交战后，怪物不会消失，会推动怪物滑动一定距离，距离与推力\\i[exp]相关。"
+								]
+							},
+							{
+								"text": "融合",
+								"action": [
+									"被推动的怪物与同种怪物距离相近时，会自动发生融合。\n融合不消耗推力，融合会改变滑动方向。"
+								]
+							},
+							{
+								"text": "碰撞",
+								"action": [
+									"被推动的怪物碰撞后会产生两个结果：反弹和传递。\n反弹会导致怪物移动方向偏移，如果发生碰撞时左右有块，会向空的一方反弹，如果没有或都有，会反向反弹。\n传递会把当前的滑动效果传递给下一个怪物。\n反弹还是传递取决于怪物的强度，越强的怪物越难以被传递。"
+								]
+							},
+							{
+								"text": "物品掉落",
+								"action": [
+									"金币累计到一定程度，在融合怪物时会产生物品掉落。物品掉落后如果不拾取，会阻拦怪物的移动，其效果等同于墙。"
+								]
+							},
+							{
+								"text": "计分",
+								"action": [
+									"如果没使用过金币，以金币计分。\n如果使用过金币，以血量-50*回合数计分。"
+								]
+							},
+							{
+								"text": "退出",
+								"action": [
+									{
+										"type": "exit"
+									}
+								]
+							}
+						]
+					}
+				]
+			}
+		],
+		"canUseItemEffect": "true"
+	},
+	"I321": {
+		"cls": "items",
+		"name": "新物品"
+	},
+	"I322": {
+		"cls": "items",
+		"name": "新物品"
+	},
+	"I323": {
+		"cls": "items",
+		"name": "新物品"
+	},
+	"I324": {
+		"cls": "items",
+		"name": "新物品"
+	},
+	"I325": {
+		"cls": "items",
+		"name": "新物品"
+	},
+	"I326": {
+		"cls": "items",
+		"name": "新物品"
+	},
+	"I327": {
+		"cls": "items",
+		"name": "新物品"
+	},
+	"I328": {
+		"cls": "items",
+		"name": "新物品"
+	},
+	"I329": {
+		"cls": "items",
+		"name": "新物品"
 	}
 }

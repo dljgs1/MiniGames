@@ -56,7 +56,15 @@ var functions_d6ad677b_427a_4623_b50f_a445a3b0ef8a =
 	// 请注意，成绩统计时是按照hp进行上传并排名
 	// 可以先在这里对最终分数进行计算，比如将2倍攻击和5倍黄钥匙数量加到分数上
 	// core.status.hero.hp += 2 * core.getRealStatus('atk') + 5 * core.itemCount('yellowKey');
-	core.status.hero.hp = core.status.hero.money * 1000 / core.getFlag("turn", 1);
+	if(core.status.hero.statistics.money == core.status.hero.money)
+	{
+		core.status.hero.hp = core.status.hero.money;
+	
+	}
+	else
+	{
+		core.status.hero.hp = core.status.hero.hp - 50 * core.getFlag("turn", 1);
+	}
 	// 如果不退出，则临时存储数据
 	if (noexit) {
 		core.status.extraEvent = core.clone(core.status.event);
@@ -1563,21 +1571,36 @@ var functions_d6ad677b_427a_4623_b50f_a445a3b0ef8a =
 		_fillBoldTextWithFontCheck(core.formatBigNumber(core.getRealStatus('mdef')), 42, 165);
 
 		// 绘制金币
-		core.drawImage(ctx, core.statusBar.icons.money, 6, 179, 25, 25);
-		_fillBoldTextWithFontCheck(core.formatBigNumber(core.status.hero.money), 42, 199);
+		core.drawImage(ctx, core.statusBar.icons.exp, 6, 179, 25, 25);
+		_fillBoldTextWithFontCheck(core.formatBigNumber(core.getRealForce()), 42, 199);
 
 		// 绘制经验
-		if (core.flags.statusBarItems.indexOf('enableExp') >= 0)
-		{
-			core.drawImage(ctx, core.statusBar.icons.exp, 6, 213, 25, 25);
-			_fillBoldTextWithFontCheck(core.formatBigNumber(core.status.hero.exp), 42, 233);
-		}
+		core.drawImage(ctx, core.statusBar.icons.money, 6, 213, 25, 25);
+		_fillBoldTextWithFontCheck(core.formatBigNumber(core.status.hero.money), 42, 233);
+
 
 		// 绘制三色钥匙
-		_fillBoldTextWithFontCheck(core.setTwoDigits(core.itemCount('yellowKey')), 11, 267, '#FFCCAA');
-		_fillBoldTextWithFontCheck(core.setTwoDigits(core.itemCount('blueKey')), 46, 267, '#AAAADD');
-		_fillBoldTextWithFontCheck(core.setTwoDigits(core.itemCount('redKey')), 81, 267, '#FF8888');
-
+		// _fillBoldTextWithFontCheck(core.setTwoDigits(core.itemCount('yellowKey')), 11, 267, // '#FFCCAA');
+		// _fillBoldTextWithFontCheck(core.setTwoDigits(core.itemCount('blueKey')), 46, 267, // '#AAAADD');
+		// _fillBoldTextWithFontCheck(core.setTwoDigits(core.itemCount('redKey')), 81, 267, // '#FF8888');
+		if(core.getFlag("smallCount", 0) > 0)
+		{
+			var sx = 5, sy = 267;
+			var dx = 36, dy = 0;
+			var itemList = ["small","mid","big"];
+			for(var i = 0; i < 3; i++)
+			{
+				var item = itemList[i]; 
+				var flagName = item + "Count";
+				var configThr = item + "Thr";
+				var configList = item + "List";
+				var resCount = (core.getFlag(flagName, 0) + 1) * core.values.combineGift[configThr] - core.status.hero.statistics.money;
+				var idx = core.getFlag(flagName, 0) % core.values.combineGift[configList].length;
+				var itemId = core.maps.blocksInfo[core.values.combineGift[configList][idx]].id;
+				core.drawIcon(ctx, itemId, sx + dx * i, sy + dy * i - 18, 24, 24)
+				_fillBoldTextWithFontCheck(core.setTwoDigits(resCount), sx + dx * i + 3, 16 + sy + dy * i, '#FFFDDD');
+			}
+		}
 	} else {
 		// 竖屏模式
 

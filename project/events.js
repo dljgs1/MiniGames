@@ -142,6 +142,54 @@ var events_c12a15a8_c380_4b28_8144_256cba95f760 =
 					}
 				]
 			}
+		],
+		"Guide": [
+			{
+				"type": "switch",
+				"condition": "flag:arg1",
+				"caseList": [
+					{
+						"case": "'gift'",
+						"action": [
+							"\t[提示]怪物成功融合可以获取金币",
+							"\t[提示]每当金币获取一定数额后 将会获取奖励\n下次所需的金币以及奖励物品将在状态栏提示",
+							{
+								"type": "comment",
+								"text": "当判别值是值的场合执行此事件"
+							}
+						]
+					},
+					{
+						"case": "'first'",
+						"action": [
+							"\t[提示]同种怪物在推击接近后 将会合并成更强的怪物",
+							"\t[提示]每过一回合 掉落一个怪物\n可以通过推击打消耗回合 也可以使用背包中的\\i[freezeBadge]等待\n下一次坠落的怪物 将会以半透明提示"
+						]
+					},
+					{
+						"case": "'shop1'",
+						"action": [
+							"\t[提示]金币商店已启用，按V或者点击\\i[shop]打开。",
+							{
+								"type": "openShop",
+								"id": "shop1",
+								"open": true
+							}
+						]
+					},
+					{
+						"case": "'shop2'",
+						"action": [
+							"\t[提示]道具商店已启用，按V或者点击\\i[shop]打开。",
+							{
+								"type": "openShop",
+								"id": "itemShop",
+								"open": true
+							}
+						]
+					}
+				]
+			}
 		]
 	}
 }

@@ -32,7 +32,9 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 			"jump.mp3",
 			"pickaxe.mp3",
 			"bomb.mp3",
-			"centerFly.mp3"
+			"centerFly.mp3",
+			"combine.mp3",
+			"gift.mp3"
 		],
 		"fonts": [],
 		"nameMap": {
@@ -99,6 +101,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 				"constants": {
 					"book": 1,
 					"freezeBadge": 1,
+					"I320": 1
 				},
 				"tools": {},
 				"equips": {}
@@ -110,7 +113,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 			},
 			"flags": {
 				"force": 5,
-				"forceMul": 1,
+				"forceMul": 1
 			},
 			"followers": [],
 			"steps": 0
@@ -244,10 +247,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 			}
 		],
 		"startText": [
-			{
-				"type": "comment",
-				"text": "初始剧情"
-			}
+			"魔塔倒塌后，魔王使用天魔解体化成一片妖雾，飘到了上空。\n现在天上开始下怪物了，这些怪物都无法被击败，你要去融合它们，找到魔王。"
 		],
 		"shops": [
 			{
@@ -269,7 +269,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 								"type": "setValue",
 								"name": "status:money",
 								"operator": "-=",
-								"value": "20+2*flag:shop1"
+								"value": "20+20*flag:shop1"
 							},
 							{
 								"type": "setValue",
@@ -297,7 +297,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 								"type": "setValue",
 								"name": "status:money",
 								"operator": "-=",
-								"value": "20+2*flag:shop1"
+								"value": "20+20*flag:shop1"
 							},
 							{
 								"type": "setValue",
@@ -321,7 +321,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 								"type": "setValue",
 								"name": "status:money",
 								"operator": "-=",
-								"value": "20+2*flag:shop1"
+								"value": "20+20*flag:shop1"
 							},
 							{
 								"type": "setValue",
@@ -348,7 +348,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 					{
 						"id": "cross",
 						"number": 1,
-						"money": "50",
+						"money": "15",
 						"sell": "5"
 					},
 					{
@@ -374,9 +374,9 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 						"number": 20,
 						"money": "10",
 						"sell": "5"
-					},
+					}
 				]
-			},
+			}
 		],
 		"levelUp": [
 			{
@@ -437,14 +437,23 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 		"animateSpeed": 400,
 		"statusCanvasRowsOnMobile": 3,
 		"floorChangeTime": 500,
-		"combineGift":
-		{
+		"combineGift": {
 			"smallThr": 10,
 			"midThr": 23,
 			"bigThr": 42,
-			"smallList": [31, 32],
-			"midList": [27, 28, 29],
-			"bigList": [34, 33],
+			"smallList": [
+				31,
+				32
+			],
+			"midList": [
+				27,
+				28,
+				29
+			],
+			"bigList": [
+				34,
+				33
+			]
 		}
 	},
 	"flags": {
@@ -455,7 +464,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 			"enableDef",
 			"enableMDef",
 			"enableMoney",
-			"enableKeys",
+			"enableKeys"
 		],
 		"flyNearStair": true,
 		"flyRecordPosition": false,
