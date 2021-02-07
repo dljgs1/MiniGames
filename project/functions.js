@@ -59,11 +59,12 @@ var functions_d6ad677b_427a_4623_b50f_a445a3b0ef8a =
 	if(core.status.hero.statistics.money == core.status.hero.money)
 	{
 		core.status.hero.hp = core.status.hero.money;
-	
+		reason += "(金币)"
 	}
 	else
 	{
-		core.status.hero.hp = core.status.hero.hp - 50 * core.getFlag("turn", 1);
+		core.status.hero.hp = core.status.hero.hp - core.getFlag("turn", 1);
+		reason += "(生命)"
 	}
 	// 如果不退出，则临时存储数据
 	if (noexit) {

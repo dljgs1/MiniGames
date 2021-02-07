@@ -25,7 +25,7 @@ main.floors.MT0=
     [  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1],
     [  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1]
 ],
-    "firstArrive": [],
+    "firstArrive": ["点击前方的绿头怪尝试击败它。"],
     "parallelDo": "",
     "events": {},
     "changeFloor": {},

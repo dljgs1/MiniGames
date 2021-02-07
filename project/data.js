@@ -348,7 +348,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 					{
 						"id": "cross",
 						"number": 1,
-						"money": "15",
+						"money": "35",
 						"sell": "5"
 					},
 					{
@@ -371,7 +371,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 					},
 					{
 						"id": "dagger",
-						"number": 20,
+						"number": 50,
 						"money": "10",
 						"sell": "5"
 					}
@@ -429,7 +429,7 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 		"redPotion": 50,
 		"bluePotion": 100,
 		"yellowPotion": 200,
-		"greenPotion": 200,
+		"greenPotion": 300,
 		"breakArmor": 0.9,
 		"counterAttack": 0.1,
 		"purify": 3,
@@ -452,7 +452,8 @@ var data_a1e2fb4a_e986_4524_b0da_9b7ba7c0874d =
 			],
 			"bigList": [
 				34,
-				33
+				33,
+				30
 			]
 		}
 	},
